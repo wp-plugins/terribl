@@ -5,9 +5,9 @@ Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.11.01
+Version: 1.1.11.02
 */
-$TERRIBL_Version='1.1.11.01';
+$TERRIBL_Version='1.1.11.02';
 $TERRIBL_Logo_IMG='TERRIBL-16x16.gif';
 $TERRIBL_plugin_home='http://wordpress.ieonly.com/';
 $TERRIBL_plugin_dir='TERRIBL';
@@ -98,7 +98,7 @@ function TERRIBL_Settings() {
 		update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
 		register_setting($TERRIBL_plugin_dir.'-settings-group', $TERRIBL_plugin_dir.'_settings_array');
 	}
-	echo 'Copy the HTML in this box and give it to others who wish to link to your site<br /><textarea cols="90" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="MonthForm">Automatically add In-Bound Referers to the "In-Bound Links" Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.MonthForm.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.MonthForm.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" />
+	echo 'Copy the HTML in this box and give it to others who wish to link to your site<br /><textarea cols="70" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="MonthForm">Automatically add In-Bound Referers to the "In-Bound Links" Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.MonthForm.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.MonthForm.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" />
 	<h2>In-Bound Link Stats</h2>
 	<table border=0 cellspacing=0><tr><td>';
 	$MySQL = "SELECT MONTHNAME(StatMonth) AS MonthOf, StatMonth FROM `wp_terribl_stats` GROUP BY StatMonth ORDER BY StatMonth DESC LIMIT 12";
@@ -106,7 +106,7 @@ function TERRIBL_Settings() {
 	while ($rs = mysql_fetch_assoc($result))
 		echo '<input type="submit" value="'.$rs['MonthOf'].'" onclick="document.MonthForm.MonthOf.value=\''.$rs['StatMonth'].'\';" style="'.($_POST['MonthOf']==$rs['StatMonth']?'background-color: #33FF33; ':'').'float: right;" />';
 	echo '</td></tr></table></form><br />';
-	$MySQL = "SELECT `StatDomain` AS `Referring Site`, `StatRequestURI` AS `In-Bound URI`, `StatModified` AS `Last Referral`, `StatImpressions` AS `In-Bound Impressions`, `StatVisits` AS `In-Bound Clicks`, `StatReturn` AS `Out-Bound-Clicks` FROM `wp_terribl_stats` WHERE StatMonth = '".$_POST['MonthOf']."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
+	$MySQL = "SELECT `StatDomain` AS `Referring Site`, `StatRequestURI` AS `In-Bound URI`, `StatModified` AS `Last Referral`, `StatImpressions` AS `In-Bound Impressions`, `StatVisits` AS `In-Bound Clicks` FROM `wp_terribl_stats` WHERE StatMonth = '".$_POST['MonthOf']."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
 	$result = mysql_query($MySQL);
 	if (mysql_errno()) echo '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
 	if ($rs = mysql_fetch_assoc($result)) {
@@ -160,7 +160,7 @@ function TERRIBL_init() {
 	$img_url = plugins_url('/images/', __FILE__);
 	$TERRIBL_settings_array=array("img_url"=>$img_url, "auto_return"=>$auto_return);
 	update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
-	if (isset($_SERVER['HTTP_REFERER']) && (!(isset($_SERVER['REQUEST_URI']) && substr(str_replace('/', '', strtolower($_SERVER['REQUEST_URI'].'/WP-')), 0, 3) == 'wp-') || $Visits_Impressions == 'StatImpressions')) {
+	if (isset($_SERVER['HTTP_REFERER']) && (!(isset($_SERVER['REQUEST_URI']) && substr(str_replace('/', '', strtolower($_SERVER['REQUEST_URI'].'/NOT')), 0, 3) == 'wp-') || $Visits_Impressions == 'StatImpressions')) {
 		$TERRIBL_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
 		$TERRIBL_REFERER_Parts = explode('/', $TERRIBL_HTTP_REFERER.'//Unknown Domain');
 //echo '<li>TERRIBL_HTTP_REFERER='.$TERRIBL_HTTP_REFERER;//only used for debugging.
@@ -193,21 +193,21 @@ class TERRIBL_Widget_Class extends WP_Widget {
 		extract($args);
 		if (!$instance['title'])
 			$instance['title'] = "In-Bound Links";
-		if (!$instance['title'])
-			$instance['title'] = "yes";
+		if (!$instance['riblfer'])
+			$instance['riblfer'] = "yes";
 		if (!is_numeric($instance['number']))
 			$instance['number'] = 5;
 		if (isset($instance['riblfer']) && $instance['riblfer'] == "yes" && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && count($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) > 2) {
-			$LIs .= '<li class="TERRIBL-Link"><a title="You got here from '.$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2].'" href="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" rel="bookmark">'.$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."</a></li>\n";
-		} //else echo 'ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
-		$MySQL = "SELECT * FROM `wp_terribl_stats` WHERE StatReturn IS NOT NULL ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
+			$LIs .= '<li class="TERRIBL-Link"><a title="You got here from '.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" href="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" rel="bookmark">'.$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."</a></li>\n";
+		} else echo 'ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
+		$MySQL = "SELECT * FROM `wp_terribl_stats` WHERE StatReturn IS NOT NULL AND StatDomain != '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
 		$result = mysql_query($MySQL);
 		if (($rs = mysql_fetch_assoc($result)) && ($instance['number'] > 0)) {
 			$li=0;	
 			do {
 				$li++;
-				$LIs .= '<li class="TERRIBL-Link"><a title="'.$rs['StatDomain'].' linked here on '.$rs['StatModified'].'" href="'.$rs['StatReferer'].'" rel="bookmark">'.$rs['StatDomain']."(".$rs['StatVisits'].")</a></li>\n";
-			} while ($rs = mysql_fetch_assoc($result) && $li < $instance['number']);
+				$LIs .= '<li class="TERRIBL-Link"><a title="'.$rs['StatDomain'].' linked here on '.$rs['StatModified'].'" href="'.$rs['StatReferer'].'" rel="bookmark">'.$rs['StatDomain']."</a>&nbsp;(".$rs['StatVisits'].")</li>\n";
+			} while (($rs = mysql_fetch_assoc($result)) && ($li < $instance['number']));
 		}
 		if (strlen($LIs) > 0)
 			echo $before_widget.$before_title.$instance["title"].$after_title."<ul>\n".$LIs."</ul>\n".$after_widget;
