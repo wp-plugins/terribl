@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.11.02
-Version: 1.1.11.02
+Stable tag: 1.1.11.03
+Version: 1.1.11.03
 Requires at least: 2.6
 Tested up to: 3.2.1
 
@@ -45,6 +45,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Changelog ==
 
+= 1.1.11.03 =
+* Removed the debug output in the Widget that displays if there was no HTTP_REFERER.
+
 = 1.1.11.02 =
 * Fixed bugs in the Widget that caused it not to display the links correctly.
 * Fixed bugs in the init so that it would log links to the root directory of your site.
@@ -53,6 +56,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.11.03 =
+Removed the debug output in the Widget that displays if there was no HTTP_REFERER.
 
 = 1.1.11.02 =
 Fixed lots of bugs in the Widget.

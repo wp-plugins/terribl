@@ -5,12 +5,12 @@ Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.11.02
+Version: 1.1.11.03
 */
-$TERRIBL_Version='1.1.11.02';
-$TERRIBL_Logo_IMG='TERRIBL-16x16.gif';
+$TERRIBL_Version='1.1.11.03';
 $TERRIBL_plugin_home='http://wordpress.ieonly.com/';
 $TERRIBL_plugin_dir='TERRIBL';
+$TERRIBL_Logo_IMG=$TERRIBL_plugin_dir.'-16x16.gif';
 /**
  * TERRIBL Main Plugin File
  * @package TERRIBL
@@ -199,7 +199,7 @@ class TERRIBL_Widget_Class extends WP_Widget {
 			$instance['number'] = 5;
 		if (isset($instance['riblfer']) && $instance['riblfer'] == "yes" && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && count($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) > 2) {
 			$LIs .= '<li class="TERRIBL-Link"><a title="You got here from '.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" href="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" rel="bookmark">'.$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."</a></li>\n";
-		} else echo 'ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
+		}// else echo 'ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
 		$MySQL = "SELECT * FROM `wp_terribl_stats` WHERE StatReturn IS NOT NULL AND StatDomain != '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
 		$result = mysql_query($MySQL);
 		if (($rs = mysql_fetch_assoc($result)) && ($instance['number'] > 0)) {
