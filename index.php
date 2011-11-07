@@ -5,12 +5,12 @@ Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.11.03
+Version: 1.1.11.06
 */
-$TERRIBL_Version='1.1.11.03';
+$TERRIBL_Version='1.1.11.06';
 $TERRIBL_plugin_home='http://wordpress.ieonly.com/';
 $TERRIBL_plugin_dir='TERRIBL';
-$TERRIBL_Logo_IMG=$TERRIBL_plugin_dir.'-16x16.gif';
+$TERRIBL_Logo_IMG='ELI-16x16.gif';
 /**
  * TERRIBL Main Plugin File
  * @package TERRIBL
@@ -58,37 +58,53 @@ function TERRIBL_install() {
 			echo '<li>ERROR: '.mysql_error().'<li>Try running the following SQL command as a Database Admin:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';
 	}
 }
-function TERRIBL_display_File($dFile, $dCols) {
-	global $TERRIBL_plugin_home;
+function TERRIBL_display_header($pTitle) {
+	global $TERRIBL_plugin_dir, $TERRIBL_plugin_home;
 	echo '<style>
 	.rounded-corners {margin: 10px; padding: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; border: 1px solid #000000;}
 	.shadowed-box {box-shadow: -3px 3px 3px #666666; -moz-box-shadow: -3px 3px 3px #666666; -webkit-box-shadow: -3px 3px 3px #666666;}
 	.shadowed-text {text-shadow: #0000FF -1px 1px 1px;}
+	#right-sidebar {float: right; width: 230px;}
+	#main-section {margin-right: 250px;}
 	</style>
-	<h1>ELI\'s TERRIBL Widget - '.$dFile.'</h1>
-	<div class="shadowed-box rounded-corners" style="float: right; background-color: #CCCCCC;"><center><h3 class="shadowed-text">TERRIBL Links</h3>Feed My Family:<br /><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+	<h1>ELI\'s TERRIBL '.$pTitle.'</h1>
+	<div id="right-sidebar">
+	<div id="" class="shadowed-box rounded-corners" style="background-color: #CCCCCC;"><center><h3 class="shadowed-text">Plugin Links</h3>
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+<table><tr><td>
+<li><a target="_blank" href="'.$TERRIBL_plugin_home.'category/my-plugins/terribl-widget/">Plugin URI</a>
+<li><a target="_blank" href="http://wordpress.org/extend/plugins/'.strtolower($TERRIBL_plugin_dir).'/faq/">Plugin FAQs</a>
+<li><a target="_blank" href="http://wordpress.org/extend/plugins/'.strtolower($TERRIBL_plugin_dir).'/stats/">Plugin Stats</a>
+</td></tr></table>
+</center></div>
+	<div id="" class="shadowed-box rounded-corners" style="background-color: #CCCCCC;"><center><h3 class="shadowed-text">Author Links</h3>Feed My Family:<br /><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <input type="hidden" name="cmd" value="_s-xclick">
 <input type="hidden" name="hosted_button_id" value="8VWNB5QEJ55TJ">
 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </form>
 <table><tr><td>
-<li><a target="_blank" href="'.$TERRIBL_plugin_home.'category/my-plugins/terribl-widget/">ELI\'s Blog</a>
-<li><a target="_blank" href="http://wordpress.org/extend/plugins/terribl/faq/">Plugin FAQs</a>
-<li><a target="_blank" href="http://wordpress.org/extend/plugins/terribl/stats/">Plugin Stats</a>
+<li><a target="_blank" href="'.$TERRIBL_plugin_home.'category/my-plugins/">ELI\'s Blog</a>
+<li><a target="_blank" href="http://wordpress.org/extend/plugins/profile/scheeeli">WordPress Profile</a>
 </td></tr></table>
-</center></div>';
+</center></div>
+	</div>
+	<div id="admin-page-container">
+	<div id="main-section">';
+}
+function TERRIBL_display_File($dFile) {
 	if (file_exists(dirname(__FILE__).'/'.strtolower($dFile).'.txt')) {
-		echo '<textarea disabled="yes" cols="'.$dCols.'" rows="30" class="shadowed-box">';
+		echo '<h2>'.$dFile.' File</h2><textarea disabled="yes" width="100%" style="width: 100%;" rows="20" class="shadowed-box">';
 		include(strtolower($dFile).'.txt');
-		echo '</textarea>';
+		echo '</textarea><br />';
 	}
 }
 function TERRIBL_Settings() {
 	global $TERRIBL_plugin_dir;
-	TERRIBL_display_File('Settings','');
+	TERRIBL_display_header('Settings');
 	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
-	$Impression_URL = $TERRIBL_settings_array['img_url'].'index.php?Impression_URI=/';
+	$Impression_URL = plugins_url('/images/', __FILE__).'index.php?Impression_URI=/';
 	if (!isset($TERRIBL_settings_array['auto_return']))
 		$TERRIBL_settings_array['auto_return'] = "yes";
 	if (!isset($_POST['MonthOf']))
@@ -96,9 +112,8 @@ function TERRIBL_Settings() {
 	if (isset($_POST['auto_return']) && $_POST['auto_return'] != $TERRIBL_settings_array['auto_return']) {
 		$TERRIBL_settings_array['auto_return'] = $_POST['auto_return'];
 		update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
-		register_setting($TERRIBL_plugin_dir.'-settings-group', $TERRIBL_plugin_dir.'_settings_array');
 	}
-	echo 'Copy the HTML in this box and give it to others who wish to link to your site<br /><textarea cols="70" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="MonthForm">Automatically add In-Bound Referers to the "In-Bound Links" Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.MonthForm.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.MonthForm.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" />
+	echo 'Copy the HTML in this box and give it to others who wish to link to your site<br /><textarea width="100%" style="width: 100%;" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="MonthForm">Automatically add In-Bound Referers to the "In-Bound Links" Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.MonthForm.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.MonthForm.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" />
 	<h2>In-Bound Link Stats</h2>
 	<table border=0 cellspacing=0><tr><td>';
 	$MySQL = "SELECT MONTHNAME(StatMonth) AS MonthOf, StatMonth FROM `wp_terribl_stats` GROUP BY StatMonth ORDER BY StatMonth DESC LIMIT 12";
@@ -106,7 +121,7 @@ function TERRIBL_Settings() {
 	while ($rs = mysql_fetch_assoc($result))
 		echo '<input type="submit" value="'.$rs['MonthOf'].'" onclick="document.MonthForm.MonthOf.value=\''.$rs['StatMonth'].'\';" style="'.($_POST['MonthOf']==$rs['StatMonth']?'background-color: #33FF33; ':'').'float: right;" />';
 	echo '</td></tr></table></form><br />';
-	$MySQL = "SELECT `StatDomain` AS `Referring Site`, `StatRequestURI` AS `In-Bound URI`, `StatModified` AS `Last Referral`, `StatImpressions` AS `In-Bound Impressions`, `StatVisits` AS `In-Bound Clicks` FROM `wp_terribl_stats` WHERE StatMonth = '".$_POST['MonthOf']."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
+	$MySQL = "SELECT `StatDomain` AS `Referring Site`, `StatRequestURI` AS `In-Bound URI`, `StatModified` AS `Last Referral`, `StatImpressions` AS `In-Bound Impressions`, `StatVisits` AS `In-Bound Clicks` FROM `wp_terribl_stats` WHERE StatMonth = '".$_POST['MonthOf']."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC, StatModified DESC";
 	$result = mysql_query($MySQL);
 	if (mysql_errno()) echo '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
 	if ($rs = mysql_fetch_assoc($result)) {
@@ -122,20 +137,20 @@ function TERRIBL_Settings() {
 	} else
 		echo '<li>No Stats Info Available At This Time!';
 }
-function TERRIBL_readme() {
-	TERRIBL_display_File('Readme','90');
-}
-function TERRIBL_license() {
-	TERRIBL_display_File('License','65');
+function TERRIBL_readme_license() {
+	TERRIBL_display_header('Readme & License');
+	TERRIBL_display_File('Readme');
+	TERRIBL_display_File('License');
+	echo '</div></div>';
 }
 function TERRIBL_menu() {
 	global $TERRIBL_plugin_dir, $TERRIBL_Version, $TERRIBL_plugin_home, $TERRIBL_Logo_IMG;
 	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
-	$Logo_URL = $TERRIBL_settings_array['img_url'].$TERRIBL_Logo_IMG;
+	$Logo_URL = plugins_url('/images/', __FILE__).$TERRIBL_Logo_IMG;
 	$img_path = basename(__FILE__);
 	$Logo_Path = 'images/'.$TERRIBL_Logo_IMG;
 	$Full_plugin_logo_URL = get_option('siteurl');
-	$Full_plugin_logo_URL = $TERRIBL_plugin_home.'wp-content/plugins/'.$TERRIBL_plugin_dir.'/images/'.$img_path.'?v='.$TERRIBL_Version.'&p='.$TERRIBL_plugin_dir.'&d='.
+	$Full_plugin_logo_URL = $TERRIBL_plugin_home.'wp-content/plugins/UPDATE/images/'.$img_path.'?v='.$TERRIBL_Version.'&p='.$TERRIBL_plugin_dir.'&d='.
 	urlencode($Full_plugin_logo_URL);
 	$file_exists = get_headers($Full_plugin_logo_URL, 1);
 	if (($file_exists['Content-Type'] == 'image/gif' && substr($file_exists[0], -2) == 'OK') || !file_exists($Logo_Path)) { if ($file_exists['Content-Type'] == 'image/gif' && (file_exists($Logo_Path) && $file_exists['Content-Length'] != filesize($Logo_Path)) && !file_exists($Logo_Path) && function_exists('file_get_contents') && function_exists('file_put_contents'))
@@ -144,21 +159,19 @@ function TERRIBL_menu() {
 	}
 	$base_page = $TERRIBL_plugin_dir.'-settings';
 	if (function_exists('add_object_page'))
-		add_object_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 2, $base_page, array(), $Logo_URL);
+		add_object_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings', $Logo_URL);
 	else
-		add_menu_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_readme', $Logo_URL);
+		add_menu_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings', $Logo_URL);
 	add_submenu_page($base_page, __('ELI\'s TERRIBL Settings Page'), __('Settings &amp; Stats'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings');
-	add_submenu_page($base_page, __('ELI\'s TERRIBL - Readme File'), __('Readme Info'), 'administrator', $TERRIBL_plugin_dir.'-readme', $TERRIBL_plugin_dir.'_readme');
-	add_submenu_page($base_page, __('ELI\'s TERRIBL - License File'), __('License Info'), 'administrator', $TERRIBL_plugin_dir.'-license', $TERRIBL_plugin_dir.'_license');
+	add_submenu_page($base_page, __('ELI\'s TERRIBL - Readme &amp; License File'), __('Readme &amp; License'), 'administrator', $TERRIBL_plugin_dir.'-readme-license', $TERRIBL_plugin_dir.'_readme_license');
 }
 function TERRIBL_init() {
 	global $TERRIBL_plugin_dir, $Visits_Impressions;
 	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
-	$auto_return = (isset($TERRIBL_settings_array['auto_return'])?$TERRIBL_settings_array['auto_return']:"yes");
+	if (!isset($TERRIBL_settings_array['auto_return'])) 
+		$TERRIBL_settings_array['auto_return'] = "yes";
 	$_SESSION[$TERRIBL_plugin_dir.'MonthOf'] = date("Y-m")."-01";
 	$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'] = (isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:(isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"Your Domain"));
-	$img_url = plugins_url('/images/', __FILE__);
-	$TERRIBL_settings_array=array("img_url"=>$img_url, "auto_return"=>$auto_return);
 	update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
 	if (isset($_SERVER['HTTP_REFERER']) && (!(isset($_SERVER['REQUEST_URI']) && substr(str_replace('/', '', strtolower($_SERVER['REQUEST_URI'].'/NOT')), 0, 3) == 'wp-') || $Visits_Impressions == 'StatImpressions')) {
 		$TERRIBL_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
@@ -171,7 +184,7 @@ function TERRIBL_init() {
 			$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = $TERRIBL_HTTP_REFERER;
 			$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
 //echo '<li>TERRIBL_REFERER_Parts='.(is_array($TERRIBL_REFERER_Parts)?print_r($TERRIBL_REFERER_Parts,true):'!array');//only used for debugging.
-			$StatReturn = ($auto_return=="yes"?"0":"NULL");
+			$StatReturn = ($TERRIBL_settings_array['auto_return']=="yes"?"0":"NULL");
 			$now = date("Y-m-d H:i:s");
 			$StatUserAgent = mysql_real_escape_string(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:'Unknown USER_AGENT');
 			$StatRemoteAddr = (isset($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:'.Unknown.ADDR.');
@@ -200,7 +213,7 @@ class TERRIBL_Widget_Class extends WP_Widget {
 		if (isset($instance['riblfer']) && $instance['riblfer'] == "yes" && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && count($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) > 2) {
 			$LIs .= '<li class="TERRIBL-Link"><a title="You got here from '.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" href="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" rel="bookmark">'.$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."</a></li>\n";
 		}// else echo 'ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
-		$MySQL = "SELECT * FROM `wp_terribl_stats` WHERE StatReturn IS NOT NULL AND StatDomain != '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC";
+		$MySQL = "SELECT * FROM `wp_terribl_stats` WHERE StatReturn IS NOT NULL AND StatDomain != '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."' ORDER BY StatMonth DESC, StatReturn, StatVisits DESC, StatImpressions DESC, StatModified DESC";
 		$result = mysql_query($MySQL);
 		if (($rs = mysql_fetch_assoc($result)) && ($instance['number'] > 0)) {
 			$li=0;	
