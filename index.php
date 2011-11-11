@@ -5,9 +5,9 @@ Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.11.10
+Version: 1.1.11.11
 */
-$TERRIBL_Version='1.1.11.10';
+$TERRIBL_Version='1.1.11.11';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -33,10 +33,9 @@ $TERRIBL_plugin_dir='TERRIBL';
 function TERRIBL_install() {
 	global $wp_version;
 $_SESSION['eli_debug_microtime']['TERRIBL_install_start'] = microtime(true);
-	if (version_compare($wp_version, "2.6", "<")) {
-		deactivate_plugins(basename(__FILE__));
-		wp_die(__("This Plugin requires WordPress version 2.6 or higher"));
-	} else {
+	if (version_compare($wp_version, "2.6", "<"))
+		die(__("This Plugin requires WordPress version 2.6 or higher"));
+	else {
 		$MySQL = "CREATE TABLE IF NOT EXISTS `wp_terribl_stats` (
   `StatMonth` date NOT NULL,
   `StatCreated` datetime NOT NULL,
@@ -155,7 +154,8 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 	echo '</td></tr></table><br />';
 	$MySQL = str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",$TERRIBL_SQL_SELECT);
 	$result = mysql_query($MySQL);
-	if (mysql_errno()) echo '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
+	if (mysql_errno())
+		echo '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';
 	else {
 		if ($rs = mysql_fetch_assoc($result)) {
 			echo '<table border=1 cellspacing=0><tr>';
@@ -183,14 +183,14 @@ $_SESSION['eli_debug_microtime']['TERRIBL_readme_license_start'] = microtime(tru
 $_SESSION['eli_debug_microtime']['TERRIBL_readme_license_end'] = microtime(true);
 }
 function TERRIBL_menu() {
-	global $TERRIBL_plugin_dir, $TERRIBL_Version, $TERRIBL_plugin_home, $TERRIBL_Logo_IMG, $TERRIBL_updated_images_path;
+	global $TERRIBL_plugin_dir, $TERRIBL_Version, $wp_version, $TERRIBL_plugin_home, $TERRIBL_Logo_IMG, $TERRIBL_updated_images_path;
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
 	$Logo_URL = plugins_url('/images/', __FILE__).$TERRIBL_Logo_IMG;
 	$img_path = basename(__FILE__);
 	$Logo_Path = 'images/'.$TERRIBL_Logo_IMG;
 	$Full_plugin_logo_URL = get_option('siteurl');
-	$Full_plugin_logo_URL = $TERRIBL_plugin_home.$TERRIBL_updated_images_path.$img_path.'?v='.$TERRIBL_Version.'&p='.$TERRIBL_plugin_dir.'&d='.
+	$Full_plugin_logo_URL = $TERRIBL_plugin_home.$TERRIBL_updated_images_path.$img_path.'?v='.$TERRIBL_Version.'&wp='.$wp_version.'&p='.$TERRIBL_plugin_dir.'&d='.
 	urlencode($Full_plugin_logo_URL);
 	$Logo_URL = $Full_plugin_logo_URL;
 	$base_page = $TERRIBL_plugin_dir.'-settings';
@@ -225,16 +225,22 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 			if ($Visits_Impressions != 'StatImpressions')
 				$Visits_Impressions = 'StatVisits';
 			$StatRequestURI = ((isset($_GET['Impression_URI']) && $Visits_Impressions == 'StatImpressions')?$_GET['Impression_URI']:(isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:(isset($_SERVER['PHP_SELF'])?$_SERVER['PHP_SELF']:(isset($_SERVER['SCRIPT_NAME'])?$_SERVER['SCRIPT_NAME']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']))));
-			$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = $TERRIBL_HTTP_REFERER;
+			$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = str_replace('google.com/url?', 'google.com/search?', $TERRIBL_HTTP_REFERER);
+			$SAFE_REFERER = (strpos($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'], '&q=&esrc=s')>0?"REPLACE(`StatReferer`, 'google.com/url?', 'google.com/search?')":"'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'");
 			$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
 //echo '<li>TERRIBL_REFERER_Parts='.(is_array($TERRIBL_REFERER_Parts)?print_r($TERRIBL_REFERER_Parts,true):'!array');//only used for debugging.
 			$StatReturn = ($TERRIBL_settings_array['auto_return']=="yes"?"0":"NULL");
 			$now = date("Y-m-d H:i:s");
 			$StatUserAgent = mysql_real_escape_string(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:'Unknown USER_AGENT');
 			$StatRemoteAddr = (isset($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:'.Unknown.ADDR.');
-			$MySQL = "INSERT INTO `wp_terribl_stats` (`StatMonth`, `StatCreated`, `StatModified`, `StatFirstUserAgent`, `StatUserAgent`, `StatFirstRemoteAddr`, `StatRemoteAddr`, `StatReferer`, `$Visits_Impressions`, `StatDomain`, `StatReturn`, `StatRequestURI`) VALUES ('".date("Y-m")."-01', '".$now."', '".$now."', '".$StatUserAgent."', '".$StatUserAgent."', '".$StatRemoteAddr."', '".$StatRemoteAddr."', '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."', 1, '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."', ".$StatReturn.", '".$StatRequestURI."') ON DUPLICATE KEY UPDATE `StatModified`='".$now."', `StatUserAgent`='".$StatUserAgent."', `StatRemoteAddr`='".$StatRemoteAddr."', `StatReferer`='".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."', `$Visits_Impressions`=`$Visits_Impressions`+1";
+			$MySQL = "INSERT INTO `wp_terribl_stats` (`StatMonth`, `StatCreated`, `StatModified`, `StatFirstUserAgent`, `StatUserAgent`, `StatFirstRemoteAddr`, `StatRemoteAddr`, `StatReferer`, `$Visits_Impressions`, `StatDomain`, `StatReturn`, `StatRequestURI`) VALUES ('".date("Y-m")."-01', '".$now."', '".$now."', '".$StatUserAgent."', '".$StatUserAgent."', '".$StatRemoteAddr."', '".$StatRemoteAddr."', '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."', 1, '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."', ".$StatReturn.", '".$StatRequestURI."') ON DUPLICATE KEY UPDATE `StatModified`='".$now."', `StatUserAgent`='".$StatUserAgent."', `StatRemoteAddr`='".$StatRemoteAddr."', `StatReferer`=$SAFE_REFERER, `$Visits_Impressions`=`$Visits_Impressions`+1";
 			@mysql_query($MySQL);
-			if (mysql_errno()) mail("wordpress@ieonly.com", "TERRIBL MySQL INSERT", mysql_error()."\nSQL:$MySQL\n".print_r(array('POST'=>$_POST, 'SESSION'=>$_SESSION, 'SERVER'=>$_SERVER), true));//only used for debugging.//rem this line out
+			if (mysql_errno()) {
+				$SQL_Error = mysql_error();
+				if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
+					TERRIBL_install();
+				else mail("wordpress@ieonly.com", "TERRIBL MySQL INSERT", mysql_error()."\nSQL:$MySQL\n".print_r(array('POST'=>$_POST, 'SESSION'=>$_SESSION, 'SERVER'=>$_SERVER), true));//only used for debugging.//rem this line out
+			}
 		}
 	}
 //echo '<li>ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
@@ -264,9 +270,12 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_widget_start'] = microtim
 		}// else echo 'ERR: '.$TERRIBL_plugin_dir.'REFERER_Parts='.(isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?(is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'])?print_r($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'],true):'!array'):'!set');//only used for debugging.
 		$MySQL = str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatReturn IS NOT NULL AND StatDomain NOT IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`) AND StatDomain != '".$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."' GROUP", $TERRIBL_SQL_SELECT);
 		$result = mysql_query($MySQL);
-		if (mysql_errno())
-			mail("wordpress@ieonly.com", "TERRIBL MySQL SELECT", mysql_error()."\nSQL:$MySQL\n".print_r(array('POST'=>$_POST, 'SESSION'=>$_SESSION, 'SERVER'=>$_SERVER), true));//only used for debugging.//rem this line out
-		else {
+		if (mysql_errno()) {
+			$SQL_Error = mysql_error();
+			if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
+				TERRIBL_install();
+			else mail("wordpress@ieonly.com", "TERRIBL MySQL SELECT", "$SQL_Error\nSQL:$MySQL\n".print_r(array('POST'=>$_POST, 'SESSION'=>$_SESSION, 'SERVER'=>$_SERVER), true));//only used for debugging.//rem this line out
+		} else {
 			if (($rs = mysql_fetch_assoc($result)) && ($instance['number'] > 0)) {
 				$li=0;	
 				do {

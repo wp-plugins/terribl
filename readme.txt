@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.11.10
-Version: 1.1.11.10
+Stable tag: 1.1.11.11
+Version: 1.1.11.11
 Requires at least: 2.6
 Tested up to: 3.2.1
 
@@ -45,6 +45,10 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Changelog ==
 
+= 1.1.11.11 =
+* Added Error checking to create tables that were not created if you upgraded without reactivating the plugin.
+* Made some accomodations for Google's new SSL search results so that the link does not just loop you back to your site.
+
 = 1.1.11.10 =
 * Fixed option to manually block a site.
 * Updated Admin Menu icon.
@@ -71,6 +75,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.11.11 =
+Added Error checking to create tables that were not created if you upgraded without reactivating the plugin.
 
 = 1.1.11.10 =
 Fixed option to manually block a sites, updated Admin Menu icon, and added Update checker.
