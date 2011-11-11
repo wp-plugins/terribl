@@ -1,5 +1,5 @@
 <?php
-$img_src = 'ELI-16x16.gif';
+$img_src = 'TERRIBL-16x16.gif';
 $all_colors = Array('black' => Array(0,0,0),
 					'red' => Array(255,0,0),
 					'blue' => Array(0,0,255),

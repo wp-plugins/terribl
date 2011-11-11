@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.11.08
-Version: 1.1.11.08
+Stable tag: 1.1.11.10
+Version: 1.1.11.10
 Requires at least: 2.6
 Tested up to: 3.2.1
 
@@ -45,6 +45,11 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Changelog ==
 
+= 1.1.11.10 =
+* Fixed option to manually block a site.
+* Updated Admin Menu icon.
+* Added Plugin Updates section to the right side in the Admin pages.
+
 = 1.1.11.08 =
 * Added option to manually add a site to kick off your In-Bound Links Widget.
 * Added ability to block an undesirable site from ever showing in your In-Bound Links Widget.
@@ -66,6 +71,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.11.10 =
+Fixed option to manually block a sites, updated Admin Menu icon, and added Update checker.
 
 = 1.1.11.08 =
 Added options to manually add and block sites and grouped Links on the Widget to prevent duplication.
