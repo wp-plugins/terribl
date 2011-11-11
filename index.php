@@ -5,9 +5,9 @@ Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.11.11
+Version: 1.1.11.12
 */
-$TERRIBL_Version='1.1.11.11';
+$TERRIBL_Version='1.1.11.12';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -154,9 +154,12 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 	echo '</td></tr></table><br />';
 	$MySQL = str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",$TERRIBL_SQL_SELECT);
 	$result = mysql_query($MySQL);
-	if (mysql_errno())
-		echo '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';
-	else {
+	if (mysql_errno()) {
+		$SQL_Error = mysql_error();
+		if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
+			TERRIBL_install();
+		else echo '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
+	} else {
 		if ($rs = mysql_fetch_assoc($result)) {
 			echo '<table border=1 cellspacing=0><tr>';
 			foreach ($rs as $field => $value)
