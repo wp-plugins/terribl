@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.11.16
+Version: 1.1.11.17
 */
-$TERRIBL_Version='1.1.11.16';
+$TERRIBL_Version='1.1.11.17';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -188,7 +188,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 		if ($_POST['auto_what']=='block')
 			@mysql_query("INSERT INTO `wp_terribl_blocked` (BlockDomain, BlockReason, BlockCreated) VALUES ('$DomainName', '".$current_user->display_name." said so once', '".date("Y-m-d H:i:s")."') ON DUPLICATE KEY UPDATE BlockReason=CONCAT(BlockReason,' and again')");
 		if ($_POST['auto_what']=='show')
-			@mysql_query("UPDATE `wp_terribl_stats` SET `StatReturn`=0 WHERE StatDomain='$DomainName'");
+			@mysql_query("UPDATE `wp_terribl_stats` SET `StatReturn`=1 WHERE StatDomain='$DomainName'");
 	}
 	$MySQL = "SELECT MONTHNAME(StatMonth) AS MonthOf, StatMonth FROM `wp_terribl_stats` GROUP BY StatMonth ORDER BY StatMonth DESC LIMIT 12";
 	$result = mysql_query($MySQL);

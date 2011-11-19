@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.11.16
-Version: 1.1.11.16
+Stable tag: 1.1.11.17
+Version: 1.1.11.17
 Requires at least: 2.6
 Tested up to: 3.2.1
 
@@ -44,6 +44,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 2. This is a screen shot of the Admin Menu with some example stats.
 
 == Changelog ==
+
+= 1.1.11.17 =
+* Fixed ability to override verification and force a Referer to show in the Widget.
 
 = 1.1.11.16 =
 * Added In-Bound Link Verification to validate that a Referer actually has a link to your site on their page.
@@ -82,6 +85,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.11.17 =
+Fixed ability to override verification and force a Referer to show in the Widget.
 
 = 1.1.11.16 =
 Added In-Bound Link Verification to validate that a Refering page actually contains a link to your site and improved the stats page.
