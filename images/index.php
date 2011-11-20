@@ -13,9 +13,21 @@ if (isset($_GET['Impression_URI'])) {
 	if (($TERRIBL_REFERER_Parts[2] == $img_t) && isset($_GET['Return_URL'])) {
 		$TERRIBL_REFERER_Part2 = $TERRIBL_REFERER_Parts[2];
 		$img_src = 'blocked.gif';
-		if (function_exists('file_get_contents')) {
-			$ReadFile = file_get_contents($_GET['Return_URL']).'';
-			if (strpos($ReadFile, '://'.$img_t.$_GET['Impression_URI']) > 0) {
+		$ReadFile = '';
+		if (function_exists('file_get_contents'))
+			$ReadFile = @file_get_contents($_GET['Return_URL']).'';
+		if (strlen($ReadFile) == 0) {
+			$curl_hndl = curl_init();
+			curl_setopt($curl_hndl, CURLOPT_URL, $_GET['Return_URL']);
+			curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
+		    curl_setopt($curl_hndl, CURLOPT_REFERER, $img_t);
+			curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
+			curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
+			$ReadFile = curl_exec($curl_hndl);
+			curl_close($curl_hndl);
+		}
+		if (strlen($ReadFile) > 0) {
+			if (strpos($ReadFile, '://'.$img_t) > 0) {
 				$Visits_Impressions = 'StatReturn';
 				$TERRIBL_REFERER_Parts = explode('/', $_GET['Return_URL'].'//'.$TERRIBL_HTTP_REFERER);
 				$img_src = 'checked.gif';
