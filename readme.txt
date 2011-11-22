@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.11.18
-Version: 1.1.11.18
+Stable tag: 1.1.11.19
+Version: 1.1.11.19
 Requires at least: 2.6
 Tested up to: 3.2.1
 
@@ -44,6 +44,10 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 2. This is a screen shot of the Admin Menu with some example stats.
 
 == Changelog ==
+
+= 1.1.11.19 =
+* Fixed a bug that prevented new Referers from being added to the Widget automatically.
+* Added a feature on the Settings Page to reset and reverify In-Bound Links Status.
 
 = 1.1.11.18 =
 * Added CURL call to fix new verification on servers that do not support file_get_contents.
@@ -88,6 +92,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.11.19 =
+Fixed bug that prevented new Referers from being visible on the Widget and added a feature to reset and reverify Links Status.
 
 = 1.1.11.18 =
 Added CURL call to fix new verification on servers that do not support file_get_contents.
