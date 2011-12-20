@@ -6,10 +6,10 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.11.19
-Version: 1.1.11.19
+Stable tag: 1.1.12.19
+Version: 1.1.12.19
 Requires at least: 2.6
-Tested up to: 3.2.1
+Tested up to: 3.3
 
 This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links.
 
@@ -44,6 +44,10 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 2. This is a screen shot of the Admin Menu with some example stats.
 
 == Changelog ==
+
+= 1.1.12.19 =
+* Added a "More Stats" page in the admin with some More Stats.
+* Expanded accomodations for Google's new SSL search results to all Domains.
 
 = 1.1.11.19 =
 * Fixed a bug that prevented new Referers from being added to the Widget automatically.
@@ -92,6 +96,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.12.19 =
+Added a More Stats page and expanded accomodations for Google SSL search results to all Domains.
 
 = 1.1.11.19 =
 Fixed bug that prevented new Referers from being visible on the Widget and added a feature to reset and reverify Links Status.
