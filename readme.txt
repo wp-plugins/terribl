@@ -45,6 +45,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Changelog ==
 
+= 1.1.12.20 =
+* Fixed the widget to use the new field aliases that were changed in the last release.
+
 = 1.1.12.19 =
 * Added a "More Stats" page in the admin with some More Stats.
 * Expanded accomodations for Google's new SSL search results to all Domains.
@@ -96,6 +99,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.12.20 =
+Fixed the widget to use the new field aliases that were changed in the last release.
 
 = 1.1.12.19 =
 Added a More Stats page and expanded accomodations for Google SSL search results to all Domains.
