@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.12.20
+Version: 1.1.12.21
 */
-$TERRIBL_Version='1.1.12.20';
+$TERRIBL_Version='1.1.12.21';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -132,7 +132,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_display_File_start'] = microtime(true)
 	}
 $_SESSION['eli_debug_microtime']['TERRIBL_display_File_end'] = microtime(true);
 }
-function TERRIBL_mysql_report($MySQL) {
+function TERRIBL_mysql_report($MySQL, $MyTitle = '') {
 	$result = mysql_query($MySQL);
 	$echo = '';
 	if (mysql_errno()) {
@@ -142,17 +142,20 @@ function TERRIBL_mysql_report($MySQL) {
 		else $echo .= '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
 	} else {
 		if ($rs = mysql_fetch_assoc($result)) {
-			$echo .= '	<div style="position: relative; background-color: #CCFFCC;" class="shadowed-box rounded-corners"><table border=1 cellspacing=0 cellpadding=1 style="padding: 1px;"><tr>';
+			$echo .= '<div style="position: relative; background-color: #CCFFCC;" class="shadowed-box rounded-corners"><div style="position: relative;">';
+			if ($MyTitle)
+				$echo .= '<h3>'.$MyTitle.'</h3>';
+			$echo .= '<table border=1 cellspacing=0 cellpadding=1 style="padding: 1px;"><tr>';
 			foreach ($rs as $field => $value)
-				$echo .= '<td style="padding: 1px;"><div style="width: 100%; background-color: #000000;"><font color="#FFFFFF"><b>&nbsp;'.$field.'&nbsp;</b></font></div></td>';
+				$echo .= '<td style="padding: 1px;"><div style="width: 100%; background-color: #000000;"><font color="#FFFFFF"><b>&nbsp;'.str_replace('<br />', '&nbsp;<br />&nbsp;', $field).'&nbsp;</b></font></div></td>';
 			do {
 				$echo .= '</tr><tr>';
 				foreach ($rs as $field => $value)
 					$echo .= '<td>'.$value.'</td>';
 			} while ($rs = mysql_fetch_assoc($result));
-			$echo .= '</tr></table></div>';
+			$echo .= '</tr></table></div></div>';
 		} else
-			$echo .= '<li>No Stats Info Available At This Time!';
+			$echo .= '<h3>No Stats Info Available At This Time!</h3>';
 	}
 	return $echo;
 }
@@ -175,9 +178,9 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 	update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
 	$Impression_URL = $TERRIBL_images_path.'index.php?Impression_URI=/'.$TERRIBL_settings_array['auto_root'];
 	$MySQL = "SELECT SUM(`StatVisits`) AS `In-Bound<br />Clicks`, SUM(`StatImpressions`) AS `In-Bound<br />Impressions`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatRequestURI`, '\');\">', `StatRequestURI`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatRequestURI`, '\"><li>', GROUP_CONCAT(DISTINCT CONCAT(StatVisits, ' ', StatModified, ' ', StatDomain) ORDER BY StatVisits DESC SEPARATOR '<li>'), '</div>') AS `In-Bound<br />URI` FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP BY StatRequestURI ORDER BY `In-Bound<br />Clicks` DESC, `In-Bound<br />Impressions` DESC LIMIT 10";
-	echo 'Copy the HTML in this box and give it to others who wish to link to your site<br /><textarea width="100%" style="width: 100%;" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/'.$TERRIBL_settings_array['auto_root'].'"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="TERRIBL_Form"><div style="float: left; width: 50%;"><h3 style="align: center;">Settings Form</h3><div class="shadowed-box rounded-corners" style="background-color: #FFFFCC;">Default Path to Send In-Bound Visiters to (for Site Root leave blank):<br />http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/<input type="text" name="auto_root" value="'.$TERRIBL_settings_array['auto_root'].'" /><input type="submit" value="Update" class="button-primary" /><br /><br />Automatically Validate In-Bound Referers and list in the sidebar Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.TERRIBL_Form.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.TERRIBL_Form.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" /><br /><br />Kick off your In-Bound Widget by manually adding a site here:<br />http://<input type="text" name="manual_add" id="manual_add" value="wordpress.ieonly.com" /><input type="hidden" id="auto_what" name="auto_what" value="" /><input type="submit" value="Add Site Link to Widget" class="button-primary" onclick="document.getElementById(\'auto_what\').value=\'add\';" /></div><br />
+	echo '<b>Copy the HTML in this box and give it to others who wish to link to your site</b><br /><textarea width="100%" style="width: 100%;" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/'.$TERRIBL_settings_array['auto_root'].'"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="TERRIBL_Form"><div style="float: left; width: 50%;"><div class="shadowed-box rounded-corners" style="background-color: #FFFFCC;"><h3 style="align: center;">Settings Form</h3>Default Path to Send In-Bound Visiters to (for Site Root leave blank):<br />http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/<input type="text" name="auto_root" value="'.$TERRIBL_settings_array['auto_root'].'" /> <input type="submit" value="Update" class="button-primary" /><br /><br />Automatically Validate In-Bound Referers and list in the sidebar Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.TERRIBL_Form.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.TERRIBL_Form.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" /><br /><br />Kick off your In-Bound Widget by manually adding a site here:<br />http://<input type="text" name="manual_add" id="manual_add" value="wordpress.ieonly.com" /><input type="hidden" id="auto_what" name="auto_what" value="" /><input type="submit" value="Add Site Link to Widget" class="button-primary" onclick="document.getElementById(\'auto_what\').value=\'add\';" /></div><br />
 <h2 style="float: right;">In-Bound Link Stats</h2>
-</div><div style="float: left; width: 50%;"><h3 style="align: center;">Top 10 In-Bound URIs</h3>'.TERRIBL_mysql_report($MySQL).'</div>
+</div><div style="float: left; width: 50%; margin: 0;">'.TERRIBL_mysql_report($MySQL, 'Top 10 In-Bound URIs').'</div>
 	<div style="float: left;">
 	<script>
 	function showhideRefDiv(domain) {
@@ -215,9 +218,9 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 	$result = mysql_query($MySQL);
 	while ($rs = mysql_fetch_assoc($result))
 		echo '<input type="submit" value="'.$rs['MonthOf'].'" onclick="document.TERRIBL_Form.MonthOf.value=\''.$rs['StatMonth'].'\';" style="'.($_POST['MonthOf']==$rs['StatMonth']?'background-color: #33FF33; ':'').'float: right;" />';
-	echo '</td></tr></table></div><div style="float: left; width: 100%;">';
-	$MySQL = str_replace("`StatDomain` AS `Referring<br />Site`", "CONCAT('<img border=0 src=\"".$TERRIBL_images_path."', IF(MAX(`StatReturn`)>0, CONCAT('checked.gif\" alt=\"Link Verified\" /><a href=\"javascript:document.TERRIBL_Form.submit();\" onclick=\"document.getElementById(\'auto_what\').value=\'hide\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\">Reset</a>'), CONCAT('blocked.gif\" alt=\"Link Not Found\" id=\"img_',StatDomain,'\" /><a href=\"javascript:recheckDomain(\'',StatDomain,'\', \'',MAX(StatReferer),'\');\">Recheck</a>'))) AS `Link<br />Verified`, IF(StatDomain IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`), 'Site Blocked!', CONCAT('<input type=\"submit\" value=\"Block This Site!\" onclick=\"document.getElementById(\'auto_what\').value=\'block\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\" />')) AS `Widget<br />Action`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatDomain`, '\');\">', `StatDomain`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatDomain`, '\"><table><tr><td><li>', GROUP_CONCAT(DISTINCT CONCAT(IFNULL(StatReturn, '0'), '</td><td>', StatModified, '</td><td>', StatReferer, '</td><td>', StatRequestURI) ORDER BY StatModified DESC SEPARATOR '</td></tr><tr><td><li>'), '</td></tr></table></div>') AS `Referring<br />Site`", str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",$TERRIBL_SQL_SELECT));
-	echo TERRIBL_mysql_report($MySQL).'</div></form>';
+	echo '</td></tr></table></div><div style="float: left;">';
+	$MySQL = str_replace("`StatDomain` AS `Referring<br />Site`", "CONCAT('<img border=0 src=\"".$TERRIBL_images_path."', IF(MAX(`StatReturn`)>0, 'checked.gif\" alt=\"Link Verified\"', 'blocked.gif\" alt=\"Link Not Found'), '\" id=\"img_',StatDomain,'\" /><a href=\"javascript:recheckDomain(\'',StatDomain,'\', \'',MAX(StatReferer),'\');\">Recheck</a>') AS `Link<br />Verified`, IF(StatDomain IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`), 'Site Blocked!', CONCAT('<input type=\"submit\" value=\"Block This Site!\" onclick=\"document.getElementById(\'auto_what\').value=\'block\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\" />')) AS `Widget<br />Action`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatDomain`, '\');\">', `StatDomain`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatDomain`, '\"><table><tr><td><li>', GROUP_CONCAT(DISTINCT CONCAT(IFNULL(StatReturn, '0'), '</td><td>', StatModified, '</td><td>', StatReferer, '</td><td>', StatRequestURI) ORDER BY StatModified DESC SEPARATOR '</td></tr><tr><td><li>'), '</td></tr></table></div>') AS `Referring<br />Site`", str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",$TERRIBL_SQL_SELECT));
+	echo TERRIBL_mysql_report($MySQL).'</div></form></div></div>';
 $_SESSION['eli_debug_microtime']['TERRIBL_Settings_end'] = microtime(true);
 //TERRIBL_debug();//only used for debugging.//rem this line out
 }
@@ -284,7 +287,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_end'] = microtime(true);
 }
 function TERRIBL_debug($my_error = '', $echo_error = true) {
-	global $ELISQLREPORTS_plugin_dir, $TERRIBL_Version, $wp_version;
+	global $TERRIBL_plugin_dir, $TERRIBL_Version, $wp_version;
 	$mtime=date("Y-m-d H:i:s", filemtime(__file__));
 	if (($_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'] == 'wordpress.ieonly.com') && $echo_error)
 		echo "<li>debug:<pre>$my_error\n".print_r($_SESSION['eli_debug_microtime'],true).'END;</pre>';
@@ -316,13 +319,13 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 		
 		if ($TERRIBL_REFERER_Parts[2] != $_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']) {
 			if (($Visits_Impressions == 'StatReturn'))
-				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = str_replace('/url?', '/search?', (isset($_GET['Return_URL'])?$_GET['Return_URL']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']));
+				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = (isset($_GET['Return_URL'])?$_GET['Return_URL']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']);
 			else {
 				if ($Visits_Impressions != 'StatImpressions')
 					$Visits_Impressions = 'StatVisits';
-				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = str_replace('/url?', '/search?', $TERRIBL_HTTP_REFERER);
+				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = $TERRIBL_HTTP_REFERER;
 			}
-			$SAFE_REFERER = (strpos($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'], '&q=&esrc=s')>0?"REPLACE(`StatReferer`, '/url?', '/search?')":"'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'");
+			$SAFE_REFERER = "'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'";//)(strpos($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'], '&q=&esrc=s')>0?"REPLACE(`StatReferer`, '/url?', '/search?')":;
 			$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
 			$MySQL = "INSERT INTO `wp_terribl_stats` (`StatMonth`, `StatCreated`, `StatModified`, `StatFirstUserAgent`, `StatUserAgent`, `StatFirstRemoteAddr`, `StatRemoteAddr`, `StatReferer`, `$Visits_Impressions`, `StatDomain`, `StatRequestURI`) VALUES ('".date("Y-m")."-01', '".$now."', '".$now."', '".$StatUserAgent."', '".$StatUserAgent."', '".$StatRemoteAddr."', '".$StatRemoteAddr."', '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."', 1, '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2])."', '".mysql_real_escape_string($StatRequestURI)."') ON DUPLICATE KEY UPDATE `StatModified`='".$now."', `StatUserAgent`='".$StatUserAgent."', `StatRemoteAddr`='".$StatRemoteAddr."', `StatReferer`=IF(`StatReturn`>0,`StatReferer`,$SAFE_REFERER), `$Visits_Impressions`=`$Visits_Impressions`+1";
 			@mysql_query($MySQL);

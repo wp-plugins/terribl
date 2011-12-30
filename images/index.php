@@ -16,7 +16,7 @@ if (isset($_GET['Impression_URI'])) {
 		$ReadFile = '';
 		if (function_exists('file_get_contents'))
 			$ReadFile = @file_get_contents($_GET['Return_URL']).'';
-		if (strlen($ReadFile) == 0) {
+		if (strlen($ReadFile) == 0 && function_exists('curl_init')) {
 			$curl_hndl = curl_init();
 			curl_setopt($curl_hndl, CURLOPT_URL, $_GET['Return_URL']);
 			curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);

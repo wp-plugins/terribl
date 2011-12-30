@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.12.20
-Version: 1.1.12.20
+Stable tag: 1.1.12.21
+Version: 1.1.12.21
 Requires at least: 2.6
 Tested up to: 3.3
 
@@ -44,6 +44,10 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 2. This is a screen shot of the Admin Menu with some example stats.
 
 == Changelog ==
+
+= 1.1.12.21 =
+* Minor cosmetic changes to the stats pages.
+* Removed the Google SSL search result accomodations that never really fixed anything.
 
 = 1.1.12.20 =
 * Fixed the widget to use the new field aliases that were changed in the last release.
@@ -99,6 +103,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.12.21 =
+* Minor cosmetic changes to the stats pages and removed useless code.
 
 = 1.1.12.20 =
 Fixed the widget to use the new field aliases that were changed in the last release.
