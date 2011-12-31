@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.12.21
-Version: 1.1.12.21
+Stable tag: 1.1.12.23
+Version: 1.1.12.23
 Requires at least: 2.6
 Tested up to: 3.3
 
@@ -45,7 +45,7 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Changelog ==
 
-= 1.1.12.22 =
+= 1.1.12.23 =
 * Fixed the Illegal mix of collations error produced on some servers that defaulted to non-utf8 charsets.
 
 = 1.1.12.21 =
@@ -107,7 +107,7 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Upgrade Notice ==
 
-= 1.1.12.22 =
+= 1.1.12.23 =
 Fixed the Illegal mix of collations error produced on some servers that defaulted to non-utf8 charsets.
 
 = 1.1.12.21 =

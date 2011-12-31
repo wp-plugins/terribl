@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.12.22
+Version: 1.1.12.23
 */
-$TERRIBL_Version='1.1.12.22';
+$TERRIBL_Version='1.1.12.23';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
