@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.12.21
+Version: 1.1.12.22
 */
-$TERRIBL_Version='1.1.12.21';
+$TERRIBL_Version='1.1.12.22';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -42,26 +42,26 @@ $_SESSION['eli_debug_microtime']['TERRIBL_install_start'] = microtime(true);
   `StatMonth` date NOT NULL,
   `StatCreated` datetime NOT NULL,
   `StatModified` datetime NOT NULL,
-  `StatFirstUserAgent` varchar(255) NOT NULL,
-  `StatUserAgent` varchar(255) NOT NULL,
-  `StatFirstRemoteAddr` varchar(16) NOT NULL,
-  `StatRemoteAddr` varchar(16) NOT NULL,
-  `StatReferer` varchar(255) NOT NULL,
-  `StatRequestURI` varchar(255) NOT NULL,
+  `StatFirstUserAgent` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `StatUserAgent` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `StatFirstRemoteAddr` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `StatRemoteAddr` varchar(16) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `StatReferer` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `StatRequestURI` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `StatVisits` bigint(20) unsigned NOT NULL default '0',
-  `StatDomain` varchar(50) NOT NULL default '',
+  `StatDomain` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '',
   `StatImpressions` bigint(20) NOT NULL default '0',
   `StatReturn` bigint(20) NULL default '0',
   PRIMARY KEY  (`StatDomain`,`StatMonth`,`StatRequestURI`)
-) ENGINE=MyISAM";
+) ENGINE=MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
 		@mysql_query($MySQL);
 		if (mysql_errno()) TERRIBL_debug("TERRIBL MySQL CREATE stats\n".mysql_error()."\nSQL:$MySQL");//only used for debugging.//rem this line out
 		$MySQL = "CREATE TABLE IF NOT EXISTS `wp_terribl_blocked` (
   `BlockCreated` datetime NOT NULL,
-  `BlockDomain` varchar(50) NOT NULL default '',
-  `BlockReason` varchar(50) NOT NULL default 'Admin',
+  `BlockDomain` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default '',
+  `BlockReason` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL default 'Admin',
   PRIMARY KEY  (`BlockDomain`)
-) ENGINE=MyISAM";
+) ENGINE=MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci";
 		@mysql_query($MySQL);
 		if (mysql_errno()) TERRIBL_debug("TERRIBL MySQL CREATE blocked\n".mysql_error()."\nSQL:$MySQL");//only used for debugging.//rem this line out
 	}
@@ -135,12 +135,9 @@ $_SESSION['eli_debug_microtime']['TERRIBL_display_File_end'] = microtime(true);
 function TERRIBL_mysql_report($MySQL, $MyTitle = '') {
 	$result = mysql_query($MySQL);
 	$echo = '';
-	if (mysql_errno()) {
-		$SQL_Error = mysql_error();
-		if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
-			TERRIBL_install();
-		else $echo .= '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
-	} else {
+	if (mysql_errno())
+		$echo .= '<li>ERROR: '.TERRIBL_debug(mysql_error()).'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
+	else {
 		if ($rs = mysql_fetch_assoc($result)) {
 			$echo .= '<div style="position: relative; background-color: #CCFFCC;" class="shadowed-box rounded-corners"><div style="position: relative;">';
 			if ($MyTitle)
@@ -213,7 +210,6 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 		elseif ($_POST['auto_what']=='hide')
 			@mysql_query("UPDATE `wp_terribl_stats` SET `StatReturn`=0 WHERE StatDomain='$DomainName'");
 	}
-	mysql_query("ALTER TABLE wp_terribl_stats MODIFY COLUMN `StatReturn` bigint(20) NOT NULL default '0'");
 	$MySQL = "SELECT MONTHNAME(StatMonth) AS MonthOf, StatMonth FROM `wp_terribl_stats` GROUP BY StatMonth ORDER BY StatMonth DESC LIMIT 12";
 	$result = mysql_query($MySQL);
 	while ($rs = mysql_fetch_assoc($result))
@@ -286,13 +282,28 @@ $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 	add_submenu_page($base_page, __('ELI\'s TERRIBL - More Stats Page'), __('More Stats'), 'administrator', $TERRIBL_plugin_dir.'-more-stats', $TERRIBL_plugin_dir.'_more_stats');
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_end'] = microtime(true);
 }
-function TERRIBL_debug($my_error = '', $echo_error = true) {
+function TERRIBL_debug($my_error = '', $echo_error = false) {
 	global $TERRIBL_plugin_dir, $TERRIBL_Version, $wp_version;
 	$mtime=date("Y-m-d H:i:s", filemtime(__file__));
-	if (($_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'] == 'wordpress.ieonly.com') && $echo_error)
+	if (substr($my_error, 0, 6) == "Table " && substr($my_error, -14) == " doesn't exist")
+		TERRIBL_install();
+	elseif ('Illegal mix of collations' == substr($my_error, 0, 25)) {
+		mysql_query("ALTER TABLE `wp_terribl_stats` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci, MODIFY COLUMN `StatReturn` bigint(20) NOT NULL default '0', CHANGE `StatFirstUserAgent` `StatFirstUserAgent` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatUserAgent` `StatUserAgent` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatFirstRemoteAddr` `StatFirstRemoteAddr` VARCHAR( 16 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatRemoteAddr` `StatRemoteAddr` VARCHAR( 16 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatReferer` `StatReferer` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatRequestURI` `StatRequestURI` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatDomain` `StatDomain` VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+		if (mysql_errno())
+			$my_error .= "\n<br />".mysql_error();
+		else
+			$my_error .= "\n<br />ALTER TABLE wp_terribl_stats";
+		mysql_query("ALTER TABLE `wp_terribl_blocked` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci, MODIFY COLUMN `BlockDomain` VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '', CHANGE `BlockReason` `BlockReason` VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'Admin'");
+		if (mysql_errno())
+			$my_error .= "\n<br />".mysql_error();
+		else
+			$my_error .= "\n<br />ALTER TABLE wp_terribl_blocked<br />Try refreshing the page!";
+	} //$echo .= '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
+	if ($echo_error)
 		echo "<li>debug:<pre>$my_error\n".print_r($_SESSION['eli_debug_microtime'],true).'END;</pre>';
 	else mail("wordpress@ieonly.com", "TERRIBL $TERRIBL_Version ERRORS", "mtime=$mtime\nwp_version=$wp_version\n$my_error\n".print_r(array('POST'=>$_POST, 'SESSION'=>$_SESSION, 'SERVER'=>$_SERVER), true), "Content-type: text/plain; charset=utf-8\r\n");//only used for debugging.//rem this line out
 	$_SESSION['eli_debug_microtime']=array();
+	return $my_error;
 }
 function TERRIBL_init() {
 	global $TERRIBL_plugin_dir, $Visits_Impressions, $TERRIBL_REFERER_Parts;

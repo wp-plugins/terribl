@@ -45,6 +45,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Changelog ==
 
+= 1.1.12.22 =
+* Fixed the Illegal mix of collations error produced on some servers that defaulted to non-utf8 charsets.
+
 = 1.1.12.21 =
 * Minor cosmetic changes to the stats pages.
 * Removed the Google SSL search result accomodations that never really fixed anything.
@@ -104,8 +107,11 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 
 == Upgrade Notice ==
 
+= 1.1.12.22 =
+Fixed the Illegal mix of collations error produced on some servers that defaulted to non-utf8 charsets.
+
 = 1.1.12.21 =
-* Minor cosmetic changes to the stats pages and removed useless code.
+Minor cosmetic changes to the stats pages and removed useless code.
 
 = 1.1.12.20 =
 Fixed the widget to use the new field aliases that were changed in the last release.
