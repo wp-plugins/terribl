@@ -53,6 +53,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 
 == Changelog ==
 
+= 1.2.01.25 =
+* Removed Debug output left in prior release.
+
 = 1.2.01.24 =
 * Fixed the recheck link on the setting page so that it will remove the link from the Widget if it does find a returning link.
 * Moved all the Stats to the Stats page except for the Referring Sites list.
@@ -119,6 +122,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.01.25 =
+Removed Debug output left in prior release.
 
 = 1.2.01.24 =
 Fixed the recheck link on the setting page, moved all the Stats to the Stats, and added a few different options for Menu Item placement.
