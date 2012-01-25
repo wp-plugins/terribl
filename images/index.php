@@ -12,27 +12,9 @@ if (isset($_GET['Impression_URI'])) {
 	$TERRIBL_REFERER_Parts = explode('/', $TERRIBL_HTTP_REFERER.'//'.$img_t);
 	if (($TERRIBL_REFERER_Parts[2] == $img_t) && isset($_GET['Return_URL'])) {
 		$TERRIBL_REFERER_Part2 = $TERRIBL_REFERER_Parts[2];
+		$TERRIBL_REFERER_Parts = explode('/', ((substr($_GET['Return_URL'],0,7)=='http://'||substr($_GET['Return_URL'],0,8)=='https://')?'':'http://').$_GET['Return_URL']);
 		$img_src = 'blocked.gif';
-		$ReadFile = '';
-		if (function_exists('file_get_contents'))
-			$ReadFile = @file_get_contents($_GET['Return_URL']).'';
-		if (strlen($ReadFile) == 0 && function_exists('curl_init')) {
-			$curl_hndl = curl_init();
-			curl_setopt($curl_hndl, CURLOPT_URL, $_GET['Return_URL']);
-			curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
-		    curl_setopt($curl_hndl, CURLOPT_REFERER, $img_t);
-			curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
-			curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
-			$ReadFile = curl_exec($curl_hndl);
-			curl_close($curl_hndl);
-		}
-		if (strlen($ReadFile) > 0) {
-			if (strpos($ReadFile, '://'.$img_t) > 0) {
-				$Visits_Impressions = 'StatReturn';
-				$TERRIBL_REFERER_Parts = explode('/', $_GET['Return_URL'].'//'.$TERRIBL_HTTP_REFERER);
-				$img_src = 'checked.gif';
-			}
-		}
+		$Visits_Impressions = 'StatReturn';
 	} else
 		$Visits_Impressions = 'StatImpressions';
 	$conf_path = 'wp-load.php';

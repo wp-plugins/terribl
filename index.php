@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.1.12.23
+Version: 1.1.12.24
 */
-$TERRIBL_Version='1.1.12.23';
+$TERRIBL_Version='1.1.12.24';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -160,6 +160,7 @@ function TERRIBL_Settings() {
 	global $TERRIBL_SQL_SELECT, $TERRIBL_plugin_dir, $TERRIBL_images_path;
 $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 	$current_user = wp_get_current_user();
+	$TERRIBL_menu_groups = array('Main Menu Item placed below <b>Comments</b> and above <b>Appearance</b>','Main Menu Item placed below <b>Settings</b>','Sub-Menu inside the <b>Links</b> Menu Item');
 	TERRIBL_display_header('Settings');
 	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
 	if (!isset($TERRIBL_settings_array['auto_root']))
@@ -173,12 +174,12 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 	if (isset($_POST['auto_root']) && $_POST['auto_root'] != $TERRIBL_settings_array['auto_root'])
 		$TERRIBL_settings_array['auto_root'] = $_POST['auto_root'];
 	update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
+	$menu_opts = '<b>Menu Item Placement Options:</b><br />';
+	foreach ($TERRIBL_menu_groups as $mg => $TERRIBL_menu_group)
+		$menu_opts .= '<div style="float: left; padding: 4px;" id="menu_group_div_'.$mg.'"><input type="radio" name="TERRIBL_menu_group" value="'.$mg.'"'.($TERRIBL_settings_array['menu_group']==$mg?' checked':'').' onchange="document.TERRIBL_Form.submit();" />'.$TERRIBL_menu_group.'</div>';
+	$menu_opts .= '<br style="clear: left;" /><hr /><br />';
 	$Impression_URL = $TERRIBL_images_path.'index.php?Impression_URI=/'.$TERRIBL_settings_array['auto_root'];
-	$MySQL = "SELECT SUM(`StatVisits`) AS `In-Bound<br />Clicks`, SUM(`StatImpressions`) AS `In-Bound<br />Impressions`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatRequestURI`, '\');\">', `StatRequestURI`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatRequestURI`, '\"><li>', GROUP_CONCAT(DISTINCT CONCAT(StatVisits, ' ', StatModified, ' ', StatDomain) ORDER BY StatVisits DESC SEPARATOR '<li>'), '</div>') AS `In-Bound<br />URI` FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP BY StatRequestURI ORDER BY `In-Bound<br />Clicks` DESC, `In-Bound<br />Impressions` DESC LIMIT 10";
-	echo '<b>Copy the HTML in this box and give it to others who wish to link to your site</b><br /><textarea width="100%" style="width: 100%;" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/'.$TERRIBL_settings_array['auto_root'].'"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="TERRIBL_Form"><div style="float: left; width: 50%;"><div class="shadowed-box rounded-corners" style="background-color: #FFFFCC;"><h3 style="align: center;">Settings Form</h3>Default Path to Send In-Bound Visiters to (for Site Root leave blank):<br />http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/<input type="text" name="auto_root" value="'.$TERRIBL_settings_array['auto_root'].'" /> <input type="submit" value="Update" class="button-primary" /><br /><br />Automatically Validate In-Bound Referers and list in the sidebar Widget?<br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.TERRIBL_Form.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.TERRIBL_Form.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" /><br /><br />Kick off your In-Bound Widget by manually adding a site here:<br />http://<input type="text" name="manual_add" id="manual_add" value="wordpress.ieonly.com" /><input type="hidden" id="auto_what" name="auto_what" value="" /><input type="submit" value="Add Site Link to Widget" class="button-primary" onclick="document.getElementById(\'auto_what\').value=\'add\';" /></div><br />
-<h2 style="float: right;">In-Bound Link Stats</h2>
-</div><div style="float: left; width: 50%; margin: 0;">'.TERRIBL_mysql_report($MySQL, 'Top 10 In-Bound URIs').'</div>
-	<div style="float: left;">
+	echo '<b>Copy the HTML in this box and give it to others who wish to link to your site</b><br /><textarea width="100%" style="width: 100%;" rows="3" class="shadowed-box"><a target="_blank" href="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/'.$TERRIBL_settings_array['auto_root'].'"><img border=0 src="'.$Impression_URL.'" /></a></textarea><br /><br /><form method="POST" name="TERRIBL_Form"><div class="shadowed-box rounded-corners" style="background-color: #FFFFCC;"><h2 style="align: center;">Settings Form</h2>'.$menu_opts.'<b>Default Path to Send In-Bound Visiters to</b> (for Site Root leave blank):<br />http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/<input type="text" name="auto_root" value="'.$TERRIBL_settings_array['auto_root'].'" /> <input type="submit" value="Update" class="button-primary" /><br /><br /><b>Automatically Validate In-Bound Referers and list in the sidebar Widget?</b><br /><input type="radio" name="auto_return" value="yes"'.($TERRIBL_settings_array['auto_return']=="yes"?" checked":"").' onchange="document.TERRIBL_Form.submit();" />yes &nbsp; <input type="radio" name="auto_return" value="no"'.($TERRIBL_settings_array['auto_return']=="yes"?"":" checked").' onchange="document.TERRIBL_Form.submit();" />no<input type="hidden" name="MonthOf" value="'.$_POST['MonthOf'].'" /><br /><br /><b>Kick off your In-Bound Widget by manually adding a site here:</b><br />http://<input type="text" name="manual_add" id="manual_add" value="wordpress.ieonly.com" /><input type="hidden" id="auto_what" name="auto_what" value="" /><input type="submit" value="Add Site Link to Widget" class="button-primary" onclick="document.getElementById(\'auto_what\').value=\'add\';" /></div>
 	<script>
 	function showhideRefDiv(domain) {
 		refdiv = document.getElementById(\'RefDiv_\'+domain);
@@ -190,14 +191,13 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 			}
 		}
 	}
-	function recheckDomain(domain, referer) {
+	function recheckDomain(domain) {
 		document.getElementById(\'img_\'+domain).src=\''.$TERRIBL_images_path.'wait.gif\';
 		var newimg = new Image();
 		newimg.onload = function() {document.getElementById(\'img_\'+domain).src=newimg.src;};
-		newimg.src=\''.$TERRIBL_images_path.'index.php?Impression_URI&Return_URL=\'+referer;
+		newimg.src=\''.$TERRIBL_images_path.'index.php?Impression_URI&Return_URL=\'+domain;
 	}
-	</script>
-	<table border=0 cellspacing=0><tr><td>';
+	</script>';
 	if (isset($_POST['manual_add']) && strlen(trim($_POST['manual_add'])) > 0 && isset($_POST['auto_what']) && strlen($_POST['auto_what']) > 0) {
 		$DomainName = mysql_real_escape_string(trim($_POST['manual_add']));
 		if ($_POST['auto_what']=='add') {
@@ -210,19 +210,14 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Settings_start'] = microtime(true);
 		elseif ($_POST['auto_what']=='hide')
 			@mysql_query("UPDATE `wp_terribl_stats` SET `StatReturn`=0 WHERE StatDomain='$DomainName'");
 	}
-	$MySQL = "SELECT MONTHNAME(StatMonth) AS MonthOf, StatMonth FROM `wp_terribl_stats` GROUP BY StatMonth ORDER BY StatMonth DESC LIMIT 12";
-	$result = mysql_query($MySQL);
-	while ($rs = mysql_fetch_assoc($result))
-		echo '<input type="submit" value="'.$rs['MonthOf'].'" onclick="document.TERRIBL_Form.MonthOf.value=\''.$rs['StatMonth'].'\';" style="'.($_POST['MonthOf']==$rs['StatMonth']?'background-color: #33FF33; ':'').'float: right;" />';
-	echo '</td></tr></table></div><div style="float: left;">';
-	$MySQL = str_replace("`StatDomain` AS `Referring<br />Site`", "CONCAT('<img border=0 src=\"".$TERRIBL_images_path."', IF(MAX(`StatReturn`)>0, 'checked.gif\" alt=\"Link Verified\"', 'blocked.gif\" alt=\"Link Not Found'), '\" id=\"img_',StatDomain,'\" /><a href=\"javascript:recheckDomain(\'',StatDomain,'\', \'',MAX(StatReferer),'\');\">Recheck</a>') AS `Link<br />Verified`, IF(StatDomain IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`), 'Site Blocked!', CONCAT('<input type=\"submit\" value=\"Block This Site!\" onclick=\"document.getElementById(\'auto_what\').value=\'block\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\" />')) AS `Widget<br />Action`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatDomain`, '\');\">', `StatDomain`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatDomain`, '\"><table><tr><td><li>', GROUP_CONCAT(DISTINCT CONCAT(IFNULL(StatReturn, '0'), '</td><td>', StatModified, '</td><td>', StatReferer, '</td><td>', StatRequestURI) ORDER BY StatModified DESC SEPARATOR '</td></tr><tr><td><li>'), '</td></tr></table></div>') AS `Referring<br />Site`", str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",$TERRIBL_SQL_SELECT));
-	echo TERRIBL_mysql_report($MySQL).'</div></form></div></div>';
+	$MySQL = str_replace("`StatDomain` AS `Referring<br />Site`", "CONCAT('<img border=0 src=\"".$TERRIBL_images_path."', IF(MAX(`StatReturn`)>0, 'checked.gif\" alt=\"Link Verified\"', 'blocked.gif\" alt=\"Link Not Found'), '\" id=\"img_',StatDomain,'\" /><a href=\"javascript:recheckDomain(\'',StatDomain,'\');\">Recheck</a>') AS `Link<br />Verified`, IF(StatDomain IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`), 'Site Blocked!', CONCAT('<input type=\"submit\" value=\"Block Site!\" onclick=\"document.getElementById(\'auto_what\').value=\'block\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\" />')) AS `Widget<br />Action`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatDomain`, '\');\">', `StatDomain`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatDomain`, '\"><table><tr><td>', GROUP_CONCAT(DISTINCT CONCAT(IFNULL(StatReturn, '0'), '</td><td>', StatModified, '</td><td>', StatReferer, '</td><td>', StatRequestURI) ORDER BY StatModified DESC SEPARATOR '</td></tr><tr><td>'), '</td></tr></table></div>') AS `Referring<br />Site`",$TERRIBL_SQL_SELECT);// str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",
+	echo TERRIBL_mysql_report($MySQL, 'In-Bound Links').'</form></div></div>';
 $_SESSION['eli_debug_microtime']['TERRIBL_Settings_end'] = microtime(true);
 //TERRIBL_debug();//only used for debugging.//rem this line out
 }
-function TERRIBL_more_stats() {
-$_SESSION['eli_debug_microtime']['TERRIBL_more_stats_start'] = microtime(true);
-	TERRIBL_display_header('More Stats');
+function TERRIBL_stats() {
+$_SESSION['eli_debug_microtime']['TERRIBL_stats_start'] = microtime(true);
+	TERRIBL_display_header('Stats');
 	if (!isset($_POST['MonthOf']))
 		$_POST['MonthOf'] = date("Y-m")."-01";
 	if (isset($_POST['RemoteAddr']) && strlen(trim($_POST['RemoteAddr'])))
@@ -239,6 +234,8 @@ $_SESSION['eli_debug_microtime']['TERRIBL_more_stats_start'] = microtime(true);
 	while ($rs = mysql_fetch_assoc($result))
 		echo '<input type="submit" value="'.$rs['MonthOf'].'" onclick="document.TERRIBL_Form.MonthOf.value=\''.$rs['StatMonth'].'\';" style="'.($_POST['MonthOf']==$rs['StatMonth']?'background-color: #33FF33; ':'').'float: right;" />';
 	echo '</td></tr></table></div></form>';
+	$SQL = "SELECT SUM(`StatVisits`) AS `In-Bound<br />Clicks`, SUM(`StatImpressions`) AS `In-Bound<br />Impressions`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatRequestURI`, '\');\">', `StatRequestURI`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatRequestURI`, '\"><li>', GROUP_CONCAT(DISTINCT CONCAT(StatVisits, ' ', StatModified, ' ', StatDomain) ORDER BY StatVisits DESC SEPARATOR '<li>'), '</div>') AS `In-Bound<br />URI` FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP BY StatRequestURI ORDER BY `In-Bound<br />Clicks` DESC, `In-Bound<br />Impressions` DESC LIMIT 10";
+	echo '<div style="float: left;">'.TERRIBL_mysql_report($SQL, 'Top 10 In-Bound Link Destinations').'</div>';
 	$VisiterColor = '#FF9999';
 	$VisitColor = '#9999FF';
 	$AllVisiters = "(SELECT COUNT(StatVisits) FROM wp_terribl_stats $WHERE ORDER BY COUNT(StatVisits) DESC LIMIT 1)";
@@ -250,7 +247,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_more_stats_start'] = microtime(true);
 		$ANDNOT .= " AND StatUserAgent NOT LIKE '%$OS%'";
 	}
 	$SQL .= "Other";
-	echo '<div style="float: left;"><b>Operating System</b><br />'.TERRIBL_mysql_report($SQL).'</div>';
+	echo '<div style="float: left;">'.TERRIBL_mysql_report($SQL,'Operating System').'</div>';
 	$SQL = "SELECT CONCAT('<div style=\"position: relative; width: 100%; height: 100px; background-color: #000000;\"><font color=\"$VisiterColor\"><b>', $AllVisiters, '<br />Visiters</b></font><br /><br /><font color=\"$VisitColor\"><b>', $AllVisits, '<br />Visits<b></font></div>') AS Browser";
 	$ANDNOT = "";
 	foreach (Array('MSIE', 'Firefox', 'Chrome', 'Safari', 'Opera', '') as $OS) {
@@ -258,14 +255,18 @@ $_SESSION['eli_debug_microtime']['TERRIBL_more_stats_start'] = microtime(true);
 		$ANDNOT .= " AND StatUserAgent NOT LIKE '%$OS%'";
 	}
 	$SQL .= "Other";
- 	echo '<div style="float: left;"><b>Browsers</b><br />'.TERRIBL_mysql_report($SQL).'</div>';
- 	echo '<div style="float: left;"><b>Top 10 Other Browsers</b><br />'.TERRIBL_mysql_report("SELECT COUNT(StatVisits) AS Visiters, SUM(StatVisits) AS Visits, StatUserAgent AS Browser, CONCAT('&nbsp;', GROUP_CONCAT(DISTINCT StatRemoteAddr), '&nbsp;') AS IPs FROM wp_terribl_stats ".$WHERE.str_replace(" AND StatUserAgent NOT LIKE '%%'", "", $ANDNOT)." GROUP BY StatUserAgent ORDER BY COUNT(StatVisits) DESC LIMIT 10").'</div></div></div>';
-$_SESSION['eli_debug_microtime']['TERRIBL_more_stats_end'] = microtime(true);
+ 	echo '<div style="float: left;">'.TERRIBL_mysql_report($SQL,'Browsers').'</div>';
+ 	echo '<div style="float: left;">'.TERRIBL_mysql_report("SELECT COUNT(StatVisits) AS Visiters, SUM(StatVisits) AS Visits, StatUserAgent AS Browser, CONCAT('&nbsp;', GROUP_CONCAT(DISTINCT StatRemoteAddr SEPARATOR ', '), '&nbsp;') AS IPs FROM wp_terribl_stats ".$WHERE.str_replace(" AND StatUserAgent NOT LIKE '%%'", "", $ANDNOT)." GROUP BY StatUserAgent ORDER BY COUNT(StatVisits) DESC LIMIT 10", 'Top 10 Other Browsers').'</div></div></div>';
+$_SESSION['eli_debug_microtime']['TERRIBL_stats_end'] = microtime(true);
 }
 function TERRIBL_menu() {
 	global $TERRIBL_plugin_dir, $TERRIBL_Version, $wp_version, $TERRIBL_plugin_home, $TERRIBL_Logo_IMG, $TERRIBL_updated_images_path, $TERRIBL_images_path;
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
+	if (isset($_POST['TERRIBL_menu_group']) && is_numeric($_POST['TERRIBL_menu_group']) && $_POST['TERRIBL_menu_group'] != $TERRIBL_settings_array['menu_group']) {
+		$TERRIBL_settings_array['menu_group'] = $_POST['TERRIBL_menu_group'];
+		update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
+	}
 	$Logo_URL = $TERRIBL_images_path.$TERRIBL_Logo_IMG;
 	$img_path = basename(__FILE__);
 	$Logo_Path = 'images/'.$TERRIBL_Logo_IMG;
@@ -274,12 +275,14 @@ $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 	urlencode($Full_plugin_logo_URL);
 	$Logo_URL = $Full_plugin_logo_URL;
 	$base_page = $TERRIBL_plugin_dir.'-settings';
-	if (function_exists('add_object_page'))
-		add_object_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings', $Logo_URL);
-	else
+	if ($TERRIBL_settings_array['menu_group'] == 2)
+		$base_page = 'link-manager.php';
+	elseif (!function_exists('add_object_page') || $TERRIBL_settings_array['menu_group'] == 1)
 		add_menu_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings', $Logo_URL);
-	add_submenu_page($base_page, __('ELI\'s TERRIBL Settings Page'), __('Settings &amp; Stats'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings');
-	add_submenu_page($base_page, __('ELI\'s TERRIBL - More Stats Page'), __('More Stats'), 'administrator', $TERRIBL_plugin_dir.'-more-stats', $TERRIBL_plugin_dir.'_more_stats');
+	else
+		add_object_page(__('ELI\'s TERRIBL Settings'), __('TERRIBL'), 'administrator', $base_page, $TERRIBL_plugin_dir.'_settings', $Logo_URL);
+	add_submenu_page($base_page, __('ELI\'s TERRIBL Settings Page'), __('TERRIBL Settings'), 'administrator', $TERRIBL_plugin_dir.'-settings', $TERRIBL_plugin_dir.'_settings');
+	add_submenu_page($base_page, __('ELI\'s TERRIBL Stats Page'), __('TERRIBL Stats'), 'administrator', $TERRIBL_plugin_dir.'-stats', $TERRIBL_plugin_dir.'_stats');
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_end'] = microtime(true);
 }
 function TERRIBL_debug($my_error = '', $echo_error = false) {
@@ -306,7 +309,7 @@ function TERRIBL_debug($my_error = '', $echo_error = false) {
 	return $my_error;
 }
 function TERRIBL_init() {
-	global $TERRIBL_plugin_dir, $Visits_Impressions, $TERRIBL_REFERER_Parts;
+	global $TERRIBL_plugin_dir, $Visits_Impressions, $TERRIBL_REFERER_Parts, $img_src, $img_t;
 	$YourTZ=get_option('timezone_string').'';
 	if (function_exists('date_default_timezone_set') && strlen($YourTZ) > 0)
 		date_default_timezone_set($YourTZ);
@@ -327,24 +330,86 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 		$now = date("Y-m-d H:i:s");
 		$StatUserAgent = mysql_real_escape_string(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:'Unknown USER_AGENT');
 		$StatRemoteAddr = (isset($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:'.Unknown.ADDR.');
-		
 		if ($TERRIBL_REFERER_Parts[2] != $_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']) {
-			if (($Visits_Impressions == 'StatReturn'))
-				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = (isset($_GET['Return_URL'])?$_GET['Return_URL']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']);
-			else {
-				if ($Visits_Impressions != 'StatImpressions')
+			if ($Visits_Impressions == 'StatReturn' && !(substr($_GET['Return_URL'],0,7)=='http://'||substr($_GET['Return_URL'],0,8)=='https://')) {
+				$MySQL = "SELECT `StatReferer` FROM `wp_terribl_stats` WHERE `StatDomain`='".$TERRIBL_REFERER_Parts[2]."'";
+				@mysql_query($MySQL);
+				$result = mysql_query($MySQL);
+				while ($_rs = mysql_fetch_assoc($result)) {
+					$ReadFile = '';
+					if (function_exists('file_get_contents'))
+						$ReadFile = @file_get_contents($_rs['StatReferer']).'';
+					if (strlen($ReadFile) == 0 && function_exists('curl_init')) {
+						$curl_hndl = curl_init();
+						curl_setopt($curl_hndl, CURLOPT_URL, $_rs['StatReferer']);
+						curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
+						curl_setopt($curl_hndl, CURLOPT_REFERER, $img_t);
+						curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
+						curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
+						$ReadFile = curl_exec($curl_hndl);
+						curl_close($curl_hndl);
+					}
+					if (strlen($ReadFile) > 0) {
+						$ReturnOne = '1';
+						if (strpos($ReadFile, '://'.$img_t) > 0)
+							$img_src = 'checked.gif';
+						else
+							$ReturnOne = '0';
+						$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = $_rs['StatReferer'];//(isset($_GET['Return_URL'])?$_GET['Return_URL']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']);
+						$SAFE_REFERER = "'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'";
+						$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
+						$MySQL = "UPDATE `wp_terribl_stats` SET `$Visits_Impressions`=$ReturnOne WHERE `StatReferer`=$SAFE_REFERER";
+TERRIBL_debug("TERRIBL UPDATE test\n$SQL_Error\nSQL:$MySQL");//only used for debugging.
+						@mysql_query($MySQL);
+						if (mysql_errno()) {
+							$SQL_Error = mysql_error();
+							if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
+								TERRIBL_install();
+							else TERRIBL_debug("TERRIBL MySQL UPDATE\n$SQL_Error\nSQL:$MySQL");//only used for debugging.//rem this line out
+						} elseif ($Visits_Impressions == 'StatReturn') TERRIBL_debug("TERRIBL MySQL UPDATE StatReturn\nSQL:$MySQL");
+					}
+				}
+//TERRIBL_debug("TERRIBL StatReturn\n$ReturnOne $img_src\n$img_t");//only used for debugging.
+			} else {
+				if ($Visits_Impressions != 'StatImpressions' && $Visits_Impressions != 'StatReturn')
 					$Visits_Impressions = 'StatVisits';
+				$ReturnOne = "`$Visits_Impressions`+1";
+				if ($Visits_Impressions == 'StatReturn') {
+					$TERRIBL_HTTP_REFERER = (isset($_GET['Return_URL'])?$_GET['Return_URL']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']);
+					$ReadFile = '';
+					if (function_exists('file_get_contents'))
+						$ReadFile = @file_get_contents($TERRIBL_HTTP_REFERER).'';
+					if (strlen($ReadFile) == 0 && function_exists('curl_init')) {
+						$curl_hndl = curl_init();
+						curl_setopt($curl_hndl, CURLOPT_URL, $TERRIBL_HTTP_REFERER);
+						curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
+						curl_setopt($curl_hndl, CURLOPT_REFERER, $img_t);
+						curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
+						curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
+						$ReadFile = curl_exec($curl_hndl);
+						curl_close($curl_hndl);
+					}
+					if (strlen($ReadFile) > 0) {
+						$ReturnOne = '1';
+						if (strpos($ReadFile, '://'.$img_t) > 0)
+							$img_src = 'checked.gif';
+						else
+							$ReturnOne = '0';
+					}
+//TERRIBL_debug("TERRIBL StatReturn\n$ReturnOne $img_src\n$img_t");//only used for debugging.
+				}
 				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = $TERRIBL_HTTP_REFERER;
-			}
-			$SAFE_REFERER = "'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'";//)(strpos($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'], '&q=&esrc=s')>0?"REPLACE(`StatReferer`, '/url?', '/search?')":;
-			$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
-			$MySQL = "INSERT INTO `wp_terribl_stats` (`StatMonth`, `StatCreated`, `StatModified`, `StatFirstUserAgent`, `StatUserAgent`, `StatFirstRemoteAddr`, `StatRemoteAddr`, `StatReferer`, `$Visits_Impressions`, `StatDomain`, `StatRequestURI`) VALUES ('".date("Y-m")."-01', '".$now."', '".$now."', '".$StatUserAgent."', '".$StatUserAgent."', '".$StatRemoteAddr."', '".$StatRemoteAddr."', '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."', 1, '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2])."', '".mysql_real_escape_string($StatRequestURI)."') ON DUPLICATE KEY UPDATE `StatModified`='".$now."', `StatUserAgent`='".$StatUserAgent."', `StatRemoteAddr`='".$StatRemoteAddr."', `StatReferer`=IF(`StatReturn`>0,`StatReferer`,$SAFE_REFERER), `$Visits_Impressions`=`$Visits_Impressions`+1";
-			@mysql_query($MySQL);
-			if (mysql_errno()) {
-				$SQL_Error = mysql_error();
-				if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
-					TERRIBL_install();
-				else TERRIBL_debug("TERRIBL MySQL INSERT\n$SQL_Error\nSQL:$MySQL");//only used for debugging.//rem this line out
+				$SAFE_REFERER = "'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'";//)(strpos($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'], '&q=&esrc=s')>0?"REPLACE(`StatReferer`, '/url?', '/search?')":;
+				$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
+				$MySQL = "INSERT INTO `wp_terribl_stats` (`StatMonth`, `StatCreated`, `StatModified`, `StatFirstUserAgent`, `StatUserAgent`, `StatFirstRemoteAddr`, `StatRemoteAddr`, `StatReferer`, `$Visits_Impressions`, `StatDomain`, `StatRequestURI`) VALUES ('".date("Y-m")."-01', '".$now."', '".$now."', '".$StatUserAgent."', '".$StatUserAgent."', '".$StatRemoteAddr."', '".$StatRemoteAddr."', $SAFE_REFERER, 1, '".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2])."', '".mysql_real_escape_string($StatRequestURI)."') ON DUPLICATE KEY UPDATE `StatModified`='".$now."', `StatUserAgent`='".$StatUserAgent."', `StatRemoteAddr`='".$StatRemoteAddr."', `StatReferer`=IF(`StatReturn`>0,`StatReferer`,$SAFE_REFERER), `$Visits_Impressions`=$ReturnOne";
+//TERRIBL_debug("TERRIBL INSERT test\n$SQL_Error\nSQL:$MySQL");//only used for debugging.
+				@mysql_query($MySQL);
+				if (mysql_errno()) {
+					$SQL_Error = mysql_error();
+					if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
+						TERRIBL_install();
+					else TERRIBL_debug("TERRIBL MySQL INSERT\n$SQL_Error\nSQL:$MySQL");//only used for debugging.
+				}
 			}
 		} elseif (isset($_GET['Impression_URI']) && ($StatRequestURI == $_GET['Impression_URI']) && ($Visits_Impressions == 'StatImpressions') && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && !isset($_SESSION['chk_'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']])) {
 			$_SESSION['chk_'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']] = 0;
@@ -416,18 +481,33 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_form_start'] = microtime(
 		$riblfer = isset($instance['riblfer']) ? esc_attr($instance['riblfer']) : 'yes';
 		echo '<p><label for="'.$this->get_field_id('title').'">'.__('Alternate Widget Title').':</label>
 		<input type="text" name="'.$this->get_field_name('title').'" id="'.$this->get_field_id('title').'" value="'.$title.'" /></p>
-		<p><label for="'.$this->get_field_id('riblfer').'">'.__('Display a Link to the Current Referer').':</label>
-		<input type="checkbox" name="'.$this->get_field_name('riblfer').'" id="'.$this->get_field_id('riblfer').'" value="yes"'.($riblfer=="yes"?" checked":"").' />yes</p>
+		<p><input type="checkbox" name="'.$this->get_field_name('riblfer').'" id="'.$this->get_field_id('riblfer').'" value="yes"'.($riblfer=="yes"?" checked":"").' /><label for="'.$this->get_field_id('riblfer').'">'.__('Display a Link to the Current Referer').':</label></p>
 		<p><label for="'.$this->get_field_id('number').'">Number of Older Referer to Display:</label>
 		<input type="text" size="2" name="'.$this->get_field_name('number').'" id="'.$this->get_field_id('number').'" value="'.$number.'" /></p>';
 $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_form_end'] = microtime(true);
 	}
 }
+function TERRIBL_set_plugin_action_links($links_array, $plugin_file) {
+	if ($plugin_file == substr(__file__, (-1 * strlen($plugin_file)))) {
+		$_SESSION['eli_debug_microtime']['TERRIBL_set_plugin_action_links'] = microtime(true);
+		$links_array = array_merge(array('<a href="admin.php?page=TERRIBL-settings">'.__( 'Settings' ).'</a>'), $links_array);
+	}
+	return $links_array;
+}
+function TERRIBL_set_plugin_row_meta($links_array, $plugin_file) {
+	if ($plugin_file == substr(__file__, (-1 * strlen($plugin_file)))) {
+		$_SESSION['eli_debug_microtime']['TERRIBL_set_plugin_row_meta'] = microtime(true);
+		$links_array = array_merge($links_array, array('<a target="_blank" href="http://wordpress.org/extend/plugins/terribl/faq/">'.__( 'FAQ' ).'</a>','<a target="_blank" href="http://wordpress.org/tags/terribl">'.__( 'Support' ).'</a>','<a target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ">'.__( 'Donate' ).'</a>'));
+	}
+	return $links_array;
+}
+add_filter('plugin_row_meta', $TERRIBL_plugin_dir.'_set_plugin_row_meta', 1, 2);
+add_filter('plugin_action_links', $TERRIBL_plugin_dir.'_set_plugin_action_links', 1, 2);
 $TERRIBL_plugin_home='http://wordpress.ieonly.com/';
 $TERRIBL_images_path = plugins_url('/images/', __FILE__);
 $TERRIBL_updated_images_path = 'wp-content/plugins/update/images/';
 $TERRIBL_Logo_IMG='TERRIBL-16x16.gif';//<a href=\"javascript:document.TERRIBL_Form.submit();\" onclick=\"document.getElementById(\'auto_what\').value=\'show\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\">Show</a>
-$TERRIBL_SQL_SELECT = "SELECT `StatDomain` AS `Referring<br />Site`, (SELECT `StatRequestURI` FROM wp_terribl_stats AS pastReferer WHERE StatDomain = wp_terribl_stats.StatDomain ORDER BY StatModified DESC LIMIT 1) AS `In-Bound<br />URI`, MAX(`StatModified`) AS `Last<br />Referral`, SUM(`StatVisits`) AS `In-Bound<br />Clicks`, SUM(`StatImpressions`) AS `In-Bound<br />Impressions` FROM wp_terribl_stats GROUP BY StatDomain ORDER BY MAX(StatReturn) DESC, `In-Bound<br />Clicks` DESC, SUM(`StatImpressions`) DESC, `Last<br />Referral` DESC";
+$TERRIBL_SQL_SELECT = "SELECT `StatDomain` AS `Referring<br />Site`, MAX(`StatModified`) AS `Last<br />Referral`, SUM(`StatVisits`) AS `In-Bound<br />Clicks`, SUM(`StatImpressions`) AS `In-Bound<br />Impressions` FROM wp_terribl_stats GROUP BY StatDomain ORDER BY MAX(StatReturn) DESC, `In-Bound<br />Clicks` DESC, SUM(`StatImpressions`) DESC, `Last<br />Referral` DESC";//, (SELECT `StatRequestURI` FROM wp_terribl_stats AS pastReferer WHERE StatDomain = wp_terribl_stats.StatDomain ORDER BY StatModified DESC LIMIT 1) AS `In-Bound<br />URI`
 register_activation_hook(__FILE__,$TERRIBL_plugin_dir.'_install');
 add_action('widgets_init', create_function('', 'return register_widget("TERRIBL_Widget_Class");'));
 add_action('init', $TERRIBL_plugin_dir.'_init');

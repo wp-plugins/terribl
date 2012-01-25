@@ -6,18 +6,18 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.1.12.23
-Version: 1.1.12.23
+Stable tag: 1.2.01.24
+Version: 1.2.01.24
 Requires at least: 2.6
-Tested up to: 3.3
+Tested up to: 3.3.1
 
 This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links.
 
 == Description ==
 
-Just place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
+Track Every Referer and Return In-Bound Links (TERRIBL). After installation this plugin wil lstart collecting in-bound link information.
 
-This plugin makes link trading easy and helps you track the effectiveness of your in-bound links.
+This TERRIBL plugin makes link trading easy. Just place the Widget on your sidebar to display a link to the current HTTP_REFERER and other sites that have recently link to your site. It also helps you track the effectiveness of your in-bound links with impression counts on a special linked image that you can share with others.
 
 Plugin
 
@@ -37,13 +37,26 @@ Go to the Widgets menu in the WordPress Admin and add the "In-Bound Links" Widge
 
 The Widgets only shows up after the plugin has logged traffic from another site. Try clicking to your site from a link on another site or search for your site on Google and click on the link to your site.
 
+= Why do the Google links on the Widget just loop back to my site? =
+
+In October of 2011 Google announced that signed-in users will, by default, be routed to the SSL version of Google Search. So now, when someone finds your site through Google's SSL Search, the HTTP_REFERER is not actually the page that they found your site on but rather a special redirect page that forwards traffic to your site without passing query information. This means that if you try to go back to the page that they came from it just loops back to your site.
+
 == Screenshots ==
 
-1. This is a screen shot of the Widget with all it's options showing.
+1. This is a screen shot of the Widget settings with all it's options showing.
 
-2. This is a screen shot of the Admin Menu with some example stats.
+2. This is a screen shot of the Widget with some example links.
+
+3. This is a screen shot of the Settings page with some example In-Bound Links.
+
+4. This is a screen shot of the Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.01.24 =
+* Fixed the recheck link on the setting page so that it will remove the link from the Widget if it does find a returning link.
+* Moved all the Stats to the Stats page except for the Referring Sites list.
+* Added a few different options for where to place the Menu Item to the Settings and Stats Pages.
 
 = 1.1.12.23 =
 * Fixed the Illegal mix of collations error produced on some servers that defaulted to non-utf8 charsets.
@@ -106,6 +119,9 @@ The Widgets only shows up after the plugin has logged traffic from another site.
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.01.24 =
+Fixed the recheck link on the setting page, moved all the Stats to the Stats, and added a few different options for Menu Item placement.
 
 = 1.1.12.23 =
 Fixed the Illegal mix of collations error produced on some servers that defaulted to non-utf8 charsets.
