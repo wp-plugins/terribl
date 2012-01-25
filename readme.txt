@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.01.24
-Version: 1.2.01.24
+Stable tag: 1.2.01.25
+Version: 1.2.01.25
 Requires at least: 2.6
 Tested up to: 3.3.1
 
