@@ -359,7 +359,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 						$SAFE_REFERER = "'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'";
 						$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'] = $TERRIBL_REFERER_Parts;
 						$MySQL = "UPDATE `wp_terribl_stats` SET `$Visits_Impressions`=$ReturnOne WHERE `StatReferer`=$SAFE_REFERER";
-TERRIBL_debug("TERRIBL UPDATE test\n$SQL_Error\nSQL:$MySQL");//only used for debugging.
+//TERRIBL_debug("TERRIBL UPDATE test\n$SQL_Error\nSQL:$MySQL");//only used for debugging.
 						@mysql_query($MySQL);
 						if (mysql_errno()) {
 							$SQL_Error = mysql_error();
