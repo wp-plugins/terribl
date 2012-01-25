@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.01.25
-Version: 1.2.01.25
+Stable tag: 1.2.01.26
+Version: 1.2.01.26
 Requires at least: 2.6
 Tested up to: 3.3.1
 
@@ -53,10 +53,7 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 
 == Changelog ==
 
-= 1.2.01.25 =
-* Removed Debug output left in prior release.
-
-= 1.2.01.24 =
+= 1.2.01.26 =
 * Fixed the recheck link on the setting page so that it will remove the link from the Widget if it does find a returning link.
 * Moved all the Stats to the Stats page except for the Referring Sites list.
 * Added a few different options for where to place the Menu Item to the Settings and Stats Pages.
@@ -123,10 +120,7 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 
 == Upgrade Notice ==
 
-= 1.2.01.25 =
-Removed Debug output left in prior release.
-
-= 1.2.01.24 =
+= 1.2.01.26 =
 Fixed the recheck link on the setting page, moved all the Stats to the Stats, and added a few different options for Menu Item placement.
 
 = 1.1.12.23 =
