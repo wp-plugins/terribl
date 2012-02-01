@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.2.01.26
+Version: 1.2.01.30
 */
-$TERRIBL_Version='1.2.01.26';
+$TERRIBL_Version='1.2.01.30';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -308,6 +308,34 @@ function TERRIBL_debug($my_error = '', $echo_error = false) {
 	$_SESSION['eli_debug_microtime']=array();
 	return $my_error;
 }
+function TERRIBL_get_URL($URL) {
+	if (isset($_SERVER['HTTP_REFERER']))
+		$SERVER_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
+	elseif (isset($_SERVER['HTTP_HOST']))
+		$SERVER_HTTP_REFERER = 'HOST://'.$_SERVER['HTTP_HOST'];
+	elseif (isset($_SERVER['SERVER_NAME']))
+		$SERVER_HTTP_REFERER = 'NAME://'.$_SERVER['SERVER_NAME'];
+	elseif (isset($_SERVER['SERVER_ADDR']))
+		$SERVER_HTTP_REFERER = 'ADDR://'.$_SERVER['SERVER_ADDR'];
+	else
+		$SERVER_HTTP_REFERER = 'NULL://not.anything.com';
+	$ReadFile = '';
+	if (function_exists('curl_init')) {
+		$curl_hndl = curl_init();
+		curl_setopt($curl_hndl, CURLOPT_URL, $URL);
+		curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
+		curl_setopt($curl_hndl, CURLOPT_REFERER, $SERVER_HTTP_REFERER);
+	    if (isset($_SERVER['HTTP_USER_AGENT']))
+	    	curl_setopt($curl_hndl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+		curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
+		curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
+		$ReadFile = curl_exec($curl_hndl);
+		curl_close($curl_hndl);
+	}
+	if (strlen($ReadFile) == 0 && function_exists('file_get_contents'))
+		$ReadFile = @file_get_contents($URL).'';
+	return $ReadFile;
+}
 function TERRIBL_init() {
 	global $TERRIBL_plugin_dir, $Visits_Impressions, $TERRIBL_REFERER_Parts, $img_src, $img_t;
 	$YourTZ=get_option('timezone_string').'';
@@ -336,19 +364,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 				@mysql_query($MySQL);
 				$result = mysql_query($MySQL);
 				while ($_rs = mysql_fetch_assoc($result)) {
-					$ReadFile = '';
-					if (function_exists('file_get_contents'))
-						$ReadFile = @file_get_contents($_rs['StatReferer']).'';
-					if (strlen($ReadFile) == 0 && function_exists('curl_init')) {
-						$curl_hndl = curl_init();
-						curl_setopt($curl_hndl, CURLOPT_URL, $_rs['StatReferer']);
-						curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
-						curl_setopt($curl_hndl, CURLOPT_REFERER, $img_t);
-						curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
-						curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
-						$ReadFile = curl_exec($curl_hndl);
-						curl_close($curl_hndl);
-					}
+					$ReadFile = TERRIBL_get_URL($_rs['StatReferer']);
 					if (strlen($ReadFile) > 0) {
 						$ReturnOne = '1';
 						if (strpos($ReadFile, '://'.$img_t) > 0)
@@ -366,7 +382,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 							if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
 								TERRIBL_install();
 							else TERRIBL_debug("TERRIBL MySQL UPDATE\n$SQL_Error\nSQL:$MySQL");//only used for debugging.//rem this line out
-						} elseif ($Visits_Impressions == 'StatReturn') TERRIBL_debug("TERRIBL MySQL UPDATE StatReturn\nSQL:$MySQL");
+						}// elseif ($Visits_Impressions == 'StatReturn') TERRIBL_debug("TERRIBL MySQL UPDATE StatReturn\nSQL:$MySQL");//only used for debugging.
 					}
 				}
 //TERRIBL_debug("TERRIBL StatReturn\n$ReturnOne $img_src\n$img_t");//only used for debugging.
@@ -376,19 +392,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 				$ReturnOne = "`$Visits_Impressions`+1";
 				if ($Visits_Impressions == 'StatReturn') {
 					$TERRIBL_HTTP_REFERER = (isset($_GET['Return_URL'])?$_GET['Return_URL']:$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']);
-					$ReadFile = '';
-					if (function_exists('file_get_contents'))
-						$ReadFile = @file_get_contents($TERRIBL_HTTP_REFERER).'';
-					if (strlen($ReadFile) == 0 && function_exists('curl_init')) {
-						$curl_hndl = curl_init();
-						curl_setopt($curl_hndl, CURLOPT_URL, $TERRIBL_HTTP_REFERER);
-						curl_setopt($curl_hndl, CURLOPT_TIMEOUT, 30);
-						curl_setopt($curl_hndl, CURLOPT_REFERER, $img_t);
-						curl_setopt($curl_hndl, CURLOPT_HEADER, 0);
-						curl_setopt($curl_hndl, CURLOPT_RETURNTRANSFER, TRUE);
-						$ReadFile = curl_exec($curl_hndl);
-						curl_close($curl_hndl);
-					}
+					$ReadFile = TERRIBL_get_URL($TERRIBL_HTTP_REFERER);
 					if (strlen($ReadFile) > 0) {
 						$ReturnOne = '1';
 						if (strpos($ReadFile, '://'.$img_t) > 0)
