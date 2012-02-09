@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.01.30
-Version: 1.2.01.30
+Stable tag: 1.2.02.03
+Version: 1.2.02.03
 Requires at least: 2.6
 Tested up to: 3.3.1
 
@@ -52,6 +52,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 4. This is a screen shot of the Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.02.03 =
+* Fixed menu icon path and removed debug output for known errors.
 
 = 1.2.01.30 =
 * Improved link validation for better compatibility with return links from other blogs using this plugin.
@@ -122,6 +125,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.02.03 =
+Fixed menu icon path and removed debug output for known errors.
 
 = 1.2.01.30 =
 Improved link validation for better compatibility with return links from other blogs using this plugin.

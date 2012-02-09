@@ -7,9 +7,9 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links. Place the Widget on your sidebar to display a link to the HTTP_REFERER and any other sites that you would like to trade links with.
-Version: 1.2.01.30
+Version: 1.2.02.03
 */
-$TERRIBL_Version='1.2.01.30';
+$TERRIBL_Version='1.2.02.03';
 $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 $TERRIBL_plugin_dir='TERRIBL';
 /**
@@ -136,7 +136,7 @@ function TERRIBL_mysql_report($MySQL, $MyTitle = '') {
 	$result = mysql_query($MySQL);
 	$echo = '';
 	if (mysql_errno())
-		$echo .= '<li>ERROR: '.TERRIBL_debug(mysql_error()).'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
+		$echo .= '<li>ERROR: '.TERRIBL_debug(mysql_error(), true).'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
 	else {
 		if ($rs = mysql_fetch_assoc($result)) {
 			$echo .= '<div style="position: relative; background-color: #CCFFCC;" class="shadowed-box rounded-corners"><div style="position: relative;">';
@@ -267,13 +267,19 @@ $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 		$TERRIBL_settings_array['menu_group'] = $_POST['TERRIBL_menu_group'];
 		update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
 	}
-	$Logo_URL = $TERRIBL_images_path.$TERRIBL_Logo_IMG;
 	$img_path = basename(__FILE__);
-	$Logo_Path = 'images/'.$TERRIBL_Logo_IMG;
 	$Full_plugin_logo_URL = get_option('siteurl');
-	$Full_plugin_logo_URL = $TERRIBL_plugin_home.$TERRIBL_updated_images_path.$img_path.'?v='.$TERRIBL_Version.'&wp='.$wp_version.'&p='.$TERRIBL_plugin_dir.'&d='.
+	if (!isset($TERRIBL_settings_array['img_url']))
+		$TERRIBL_settings_array['img_url'] = $Full_plugin_logo_URL;
+	$Full_plugin_logo_URL = $img_path.'?v='.$TERRIBL_Version.'&wp='.$wp_version.'&p='.$TERRIBL_plugin_dir.'&d='.
 	urlencode($Full_plugin_logo_URL);
-	$Logo_URL = $Full_plugin_logo_URL;
+	$img_path = $TERRIBL_plugin_home.$TERRIBL_updated_images_path;
+	if ($Full_plugin_logo_URL != $TERRIBL_settings_array['img_url']) {
+		$TERRIBL_settings_array['img_url'] = $Full_plugin_logo_URL;
+		update_option($TERRIBL_plugin_dir.'_settings_array', $TERRIBL_settings_array);
+	} else //only used for debugging.//rem this line out
+	$img_path = $TERRIBL_images_path;
+	$Logo_URL = $img_path.$Full_plugin_logo_URL;
 	$base_page = $TERRIBL_plugin_dir.'-settings';
 	if ($TERRIBL_settings_array['menu_group'] == 2)
 		$base_page = 'link-manager.php';
@@ -290,7 +296,7 @@ function TERRIBL_debug($my_error = '', $echo_error = false) {
 	$mtime=date("Y-m-d H:i:s", filemtime(__file__));
 	if (substr($my_error, 0, 6) == "Table " && substr($my_error, -14) == " doesn't exist")
 		TERRIBL_install();
-	elseif ('Illegal mix of collations' == substr($my_error, 0, 25)) {
+	elseif (substr($my_error, 0, 25) == 'Illegal mix of collations') {
 		mysql_query("ALTER TABLE `wp_terribl_stats` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci, MODIFY COLUMN `StatReturn` bigint(20) NOT NULL default '0', CHANGE `StatFirstUserAgent` `StatFirstUserAgent` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatUserAgent` `StatUserAgent` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatFirstRemoteAddr` `StatFirstRemoteAddr` VARCHAR( 16 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatRemoteAddr` `StatRemoteAddr` VARCHAR( 16 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatReferer` `StatReferer` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatRequestURI` `StatRequestURI` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `StatDomain` `StatDomain` VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
 		if (mysql_errno())
 			$my_error .= "\n<br />".mysql_error();
@@ -302,7 +308,7 @@ function TERRIBL_debug($my_error = '', $echo_error = false) {
 		else
 			$my_error .= "\n<br />ALTER TABLE wp_terribl_blocked<br />Try refreshing the page!";
 	} //$echo .= '<li>ERROR: '.mysql_error().'<li>SQL:<br><textarea disabled="yes" cols="65" rows="15">'.$MySQL.'</textarea>';//only used for debugging.
-	if ($echo_error)
+	if ($echo_error || (substr($my_error, 0, 22) == 'Access denied for user'))
 		echo "<li>debug:<pre>$my_error\n".print_r($_SESSION['eli_debug_microtime'],true).'END;</pre>';
 	else mail("wordpress@ieonly.com", "TERRIBL $TERRIBL_Version ERRORS", "mtime=$mtime\nwp_version=$wp_version\n$my_error\n".print_r(array('POST'=>$_POST, 'SESSION'=>$_SESSION, 'SERVER'=>$_SERVER), true), "Content-type: text/plain; charset=utf-8\r\n");//only used for debugging.//rem this line out
 	$_SESSION['eli_debug_microtime']=array();
@@ -452,7 +458,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_widget_start'] = microtim
 			$SQL_Error = mysql_error();
 			if (substr($SQL_Error, 0, 6) == "Table " && substr($SQL_Error, -14) == " doesn't exist")
 				TERRIBL_install();
-			else TERRIBL_debug("TERRIBL MySQL SELECT\n$SQL_Error\nSQL:$MySQL");//only used for debugging.//rem this line out
+			else TERRIBL_debug("$SQL_Error\nSQL:$MySQL");//only used for debugging.//rem this line out
 		} else {
 			if (($rs = mysql_fetch_assoc($result)) && ($instance['number'] > 0)) {
 				$li=0;	
