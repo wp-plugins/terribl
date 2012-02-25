@@ -6,8 +6,8 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.02.03
-Version: 1.2.02.03
+Stable tag: 1.2.02.22
+Version: 1.2.02.22
 Requires at least: 2.6
 Tested up to: 3.3.1
 
@@ -37,6 +37,10 @@ Go to the Widgets menu in the WordPress Admin and add the "In-Bound Links" Widge
 
 The Widgets only shows up after the plugin has logged traffic from another site. Try clicking to your site from a link on another site or search for your site on Google and click on the link to your site.
 
+= Why do Blocked Sites still show in the In-Bound Links Report in my admin? =
+
+You cannot block a site from linking to your site and the report shows all the In-Bound Links that the plugin has logged. By blocking a site you are telling the plugin not link back to this site, no matter what, even if they keep on linking to you.
+
 = Why do the Google links on the Widget just loop back to my site? =
 
 In October of 2011 Google announced that signed-in users will, by default, be routed to the SSL version of Google Search. So now, when someone finds your site through Google's SSL Search, the HTTP_REFERER is not actually the page that they found your site on but rather a special redirect page that forwards traffic to your site without passing query information. This means that if you try to go back to the page that they came from it just loops back to your site.
@@ -52,6 +56,10 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 4. This is a screen shot of the Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.02.22 =
+* Fixed link verification to fail sites that are not available when checked.
+* Changed the In-Bound Link Report to only show you the Validated Links unless you check the box to see them all.
 
 = 1.2.02.03 =
 * Fixed menu icon path and removed debug output for known errors.
@@ -125,6 +133,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.02.22 =
+Fixed link verification to fail sites that are not available when checked and changed the In-Bound Link Report to only show you the Validated Links.
 
 = 1.2.02.03 =
 Fixed menu icon path and removed debug output for known errors.
