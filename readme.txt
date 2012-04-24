@@ -6,10 +6,10 @@ Author URI: http://wordpress.ieonly.com/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.02.22
-Version: 1.2.02.22
+Stable tag: 1.2.04.22
+Version: 1.2.04.22
 Requires at least: 2.6
-Tested up to: 3.3.1
+Tested up to: 3.3.2
 
 This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links.
 
@@ -19,7 +19,7 @@ Track Every Referer and Return In-Bound Links (TERRIBL). After installation this
 
 This TERRIBL plugin makes link trading easy. Just place the Widget on your sidebar to display a link to the current HTTP_REFERER and other sites that have recently link to your site. It also helps you track the effectiveness of your in-bound links with impression counts on a special linked image that you can share with others.
 
-Plugin
+Plugin Apr-22nd
 
 == Installation ==
 
@@ -56,6 +56,10 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 4. This is a screen shot of the Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.04.22 =
+* Changed the In-Bound Links Report and Widget to order Validated Links by Impressions first and then by clicks.
+* Added a freature to Re-Validate All Valid Links with one click to make it easy to clear out sites that don't link to you anymore.
 
 = 1.2.02.22 =
 * Fixed link verification to fail sites that are not available when checked.
@@ -133,6 +137,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.04.22 =
+Changed the In-Bound Links Report and Widget sort order and added a freature to Re-Validate All Valid Links.
 
 = 1.2.02.22 =
 Fixed link verification to fail sites that are not available when checked and changed the In-Bound Link Report to only show you the Validated Links.
