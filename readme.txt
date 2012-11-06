@@ -1,25 +1,24 @@
-=== Track Every Referer and Return In-Bound Links - TERRIBL ===
-Plugin Name: Track Every Referer and Return In-Bound Links - TERRIBL
+=== TERRIBL is now SHAREABLE ===
 Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
-Author URI: http://wordpress.ieonly.com/
+Author URI: http://wordpress.ieonly.com/category/my-plugins/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.04.22
-Version: 1.2.04.22
+Stable tag: 1.2.11.04
+Version: 1.2.11.04
 Requires at least: 2.6
-Tested up to: 3.3.2
+Tested up to: 3.4.2
 
-This plugin is not terrible it's TERRIBL. It simply Tracks Every Referer and Returns In-Bound Links.
+SHAREABLE makes it easy to distribute links to your site. Place the new SHAREABLE Widget on your sidebar to display a link to your sites, complete with easy-to-copy link code, that others can put on their own site.
 
 == Description ==
 
-Track Every Referer and Return In-Bound Links (TERRIBL). After installation this plugin wil lstart collecting in-bound link information.
+This plugin is not TERRIBL any more, it's SHAREABLE! It still Tracks Every Referer and Returns In-Bound Links but now it also makes it easy to distribute links to your site. Place the new SHAREABLE Widget on your sidebar to display a link to your sites, complete with easy-to-copy link code, that others can put on their own site. You can even customize the link to looks the way you want it to.
 
-This TERRIBL plugin makes link trading easy. Just place the Widget on your sidebar to display a link to the current HTTP_REFERER and other sites that have recently link to your site. It also helps you track the effectiveness of your in-bound links with impression counts on a special linked image that you can share with others.
+It also helps you track the effectiveness of your in-bound links with impression counts on a special linked image that you share with others. After installation this plugin will start collecting in-bound link statistics immediately.
 
-Plugin Apr-22nd
+Updated Nov-4th
 
 == Installation ==
 
@@ -56,6 +55,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 4. This is a screen shot of the Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.11.04 =
+* Added a whole new Widget that makes link sharing easy and customizable.
 
 = 1.2.04.22 =
 * Changed the In-Bound Links Report and Widget to order Validated Links by Impressions first and then by clicks.
@@ -137,6 +139,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.11.04 =
+Added a whole new Widget that makes link sharing easy and customizable.
 
 = 1.2.04.22 =
 Changed the In-Bound Links Report and Widget sort order and added a freature to Re-Validate All Valid Links.
