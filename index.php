@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: TERRIBL is now SHAREABLE
+Plugin Name: ELI's SHAREABLE Widget and In-Bound Link Tracking
 Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/category/my-plugins/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Description: This plugin is not TERRIBL any more, it's SHAREABLE! It still Tracks Every Referer and Returns In-Bound Links but now it also makes it easy to distribute links to your site. Place the new SHAREABLE Widget on your sidebar to display a link to your sites, complete with easy-to-copy link code, that others can put on their own site.
-Version: 1.2.11.04
+Version: 1.2.11.05
 */
-$TERRIBL_Version='1.2.11.04';
+$TERRIBL_Version='1.2.11.05';
 $TERRIBL_plugin_dir='TERRIBL';
 $TERRIBL_HeadersError = '';
 function TERRIBL_admin_notices() {
@@ -48,52 +48,101 @@ $_SESSION['eli_debug_microtime']['include(TERRIBL)'] = microtime(true);
 */
 $_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'] = (isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:(isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:preg_replace('/.+\:\/\/([^\/]+).*/', '$1', get_option('siteurl'))));
 $_SERVER_REQUEST_URI = str_replace('&amp;','&', htmlspecialchars( $_SERVER['REQUEST_URI'] , ENT_QUOTES ) );
-$SHAREABLE_script_URI = 'http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].$_SERVER_REQUEST_URI.(strpos($_SERVER_REQUEST_URI,'?')?'&':'?').'shareable=';
+$SHAREABLE_script_URI = 'http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].str_replace('shareable=', 'shared=', $_SERVER_REQUEST_URI.(strpos($_SERVER_REQUEST_URI,'?')?'&':'?')).'shareable=';
 function TERRIBL_sexagesimal() {
 	return (date("y")>9?chr(ord("A")+date("y")-10):date("y")).(date("n")>9?chr(ord("A")+date("n")-10):date("n")).(date("j")>9?chr(ord("A")+date("j")-10):date("j"));
 }
+$TERRIBL_settings_array = get_option('TERRIBL_settings_array');
+if (!isset($TERRIBL_settings_array['div_style']))
+	$TERRIBL_settings_array['div_style'] = "";
+if (!isset($TERRIBL_settings_array['image_url']))
+	$TERRIBL_settings_array['image_url'] = "";
+if (!isset($TERRIBL_settings_array['image_style']))
+	$TERRIBL_settings_array['image_style'] = "";
+if (!isset($TERRIBL_settings_array['link_text']))
+	$TERRIBL_settings_array['link_text'] = "";
+if (!isset($TERRIBL_settings_array['text_style']))
+	$TERRIBL_settings_array['text_style'] = "";
 function SHAREABLE_link($img_url = '/?shareable=img') {
-	$TERRIBL_settings_array = get_option('TERRIBL_settings_array');
-	if (!isset($TERRIBL_settings_array['div_style']))
-		$TERRIBL_settings_array['div_style'] = "";
-	if (!isset($TERRIBL_settings_array['image_url']))
-		$TERRIBL_settings_array['image_url'] = "";
-	if (!isset($TERRIBL_settings_array['image_style']))
-		$TERRIBL_settings_array['image_style'] = "";
-	if (!isset($TERRIBL_settings_array['link_text']))
-		$TERRIBL_settings_array['link_text'] = "";
-	if (!isset($TERRIBL_settings_array['text_style']))
-		$TERRIBL_settings_array['text_style'] = "";
-	return '<div style="'.htmlentities($TERRIBL_settings_array['div_style']).'"><a title="'.get_bloginfo('name').'" style="'.$TERRIBL_settings_array['text_style'].'" target="_blank" href="'.str_replace('shareable=', '', $img_url).'"><img alt="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'" src="'.($TERRIBL_settings_array['image_url']?$TERRIBL_settings_array['image_url']:$img_url).'" style="'.$TERRIBL_settings_array['image_style'].'">'.$TERRIBL_settings_array['link_text'].'</a></div>';
+	global $TERRIBL_settings_array, $TERRIBL_plugin_dir, $TERRIBL_font_size;
+	if ($TERRIBL_settings_array['image_url'])
+		$image = SHAREABLE_image_info($TERRIBL_settings_array['image_url']);
+	else
+		$image = array('size'=>'width="'.(strlen($_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']) * @imagefontwidth($TERRIBL_font_size) + 2).'" height="'.(@imagefontheight($TERRIBL_font_size) + 2).'"');
+	return '<div style="'.htmlentities($TERRIBL_settings_array['div_style']).'"><a title="'.get_bloginfo('name').'" style="'.$TERRIBL_settings_array['text_style'].'" target="_blank" href="'.str_replace('shareable=', '', $img_url).'"><img '.$image['size'].' alt="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'" src="'.($img_url).'" style="'.$TERRIBL_settings_array['image_style'].'">'.$TERRIBL_settings_array['link_text'].'</a></div>';
 }
+function SHAREABLE_write_cache($filename, $data) {
+	$return = false;
+	if (function_exists('file_put_contents'))
+		$return = @file_put_contents($filename, $data);
+	elseif ($fp = @fopen($filename, 'w')) {
+		$return = @fwrite($fp, $data);
+		@fclose($fp);
+	}
+	return $return;
+}
+function SHAREABLE_get_ext($filename) {
+	$nameparts = explode('?', $filename.'?');
+	$nameparts = explode('.', str_replace('/', '.', '/0'.$nameparts[0]));
+	return strtolower($nameparts[(count($nameparts)-1)]);
+}
+function SHAREABLE_image_info($filename) {
+	global $TERRIBL_img_exts;
+	$ext = SHAREABLE_get_ext($filename);
+	$headers = array('ext' => "$ext", 'cache' => dirname(__FILE__).'/images/cache_'.md5($filename).".$ext", 'type' => "Content-type: image/$ext", 'size' => '');
+	$info = @getimagesize((file_exists($headers["cache"])?$headers["cache"]:$filename));
+	if (isset($info['mime'])) {
+		$headers['type'] = $info['mime'];
+		if (!in_array($ext, $TERRIBL_img_exts) && substr($info['mime'], 0, 6) =='image/') {
+			$headers['ext'] = SHAREABLE_get_ext($info['mime']);
+			$headers['cache'] .= '.'.$headers['ext'];
+		}
+	}
+	if (isset($info[3]))
+		$headers['size'] = $info[3];
+	return $headers;
+}
+$TERRIBL_font_size = 5;
+$TERRIBL_img_exts = array('gif','png','jpg','jpe','jpeg','tif','tiff', 'svg');
 if (isset($_GET['shareable'])) {
 	if ($_GET['shareable'] == 'img') {
-		$all_colors = Array('black' => Array(0,0,0),
-					'red' => Array(255,0,0),
-					'blue' => Array(0,0,255),
-					'white' => Array(255,255,255),
-					'trans' => Array(1,2,3));
-		$img_t = $_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'];
-		if (!isset($img_z)) $img_z = 5;
-		if (!in_array($img_b.'', array_keys($all_colors))) $img_b = 'trans';
-		if (!in_array($img_c.'', array_keys($all_colors))) $img_c = 'blue';
-		$w = strlen($img_t) * imagefontwidth($img_z) + 2;
-		$h = imagefontheight($img_z) + 2;
-		$img = imagecreate($w, $h);
-		$back = imagecolorallocate($img, $all_colors[$img_b][0], $all_colors[$img_b][1], $all_colors[$img_b][2]);
-		$fore = imagecolorallocate($img, $all_colors[$img_c][0], $all_colors[$img_c][1], $all_colors[$img_c][2]);
-		if ($img_b == 'trans')
-			imagecolortransparent($img, $back);
-		header("Content-type: image/gif");
-		imagestring($img, $img_z, 1, 1, $img_t, $fore);
-		imagegif($img);
-		imagedestroy($img);
-		die();
-	} else {
-		@header('Content-type: text/javascript');
 		$Visits_Impressions = 'StatImpressions';//$divid = str_replace('.', '_', $_GET['shareable'].'.'.microtime(true));
 		TERRIBL_init();
-		die("<!--//v$TERRIBL_Version\ndocument.write('".str_replace("'", "\\'", str_replace("\n", "\\n", str_replace("\\", "\\\\", SHAREABLE_link($SHAREABLE_script_URI.'img'))))."');\n//-->");
+		if ($TERRIBL_settings_array['image_url']) {
+			$image = SHAREABLE_image_info($TERRIBL_settings_array['image_url']);
+			header($image["type"]);
+			if (file_exists($image["cache"]))
+				echo TERRIBL_get_URL($image["cache"]);
+			else {
+				$echo = TERRIBL_get_URL($TERRIBL_settings_array['image_url']);
+				echo $echo;
+				if (in_array($image["ext"], $TERRIBL_img_exts))
+					SHAREABLE_write_cache($image["cache"], $echo);
+			}
+		} else {
+			$all_colors = Array('black' => Array(0,0,0),
+						'red' => Array(255,0,0),
+						'blue' => Array(0,0,255),
+						'white' => Array(255,255,255),
+						'trans' => Array(1,2,3)); 
+			if (!in_array($img_b.'', array_keys($all_colors))) $img_b = 'trans';
+			if (!in_array($img_c.'', array_keys($all_colors))) $img_c = 'blue';
+			$w = strlen($_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']) * imagefontwidth($TERRIBL_font_size) + 2;
+			$h = imagefontheight($TERRIBL_font_size) + 2;
+			$img = imagecreate($w, $h);
+			$back = imagecolorallocate($img, $all_colors[$img_b][0], $all_colors[$img_b][1], $all_colors[$img_b][2]);
+			$fore = imagecolorallocate($img, $all_colors[$img_c][0], $all_colors[$img_c][1], $all_colors[$img_c][2]);
+			if ($img_b == 'trans')
+				imagecolortransparent($img, $back);
+			header("Content-type: image/gif");
+			imagestring($img, $TERRIBL_font_size, 1, 1, $_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'], $fore);
+			imagegif($img);
+			imagedestroy($img);
+		}
+		die();
+	} else {
+		@header('Content-type: text/javascript');//str_replace("shareable=", "ts='+Math.round((new Date()).getTime() / 1000)+'&shareable=", 
+		die("<!--//v$TERRIBL_Version;r=".$_SERVER['HTTP_REFERER']."\ndocument.write('".str_replace("'", "\\'", str_replace("\n", "\\n", str_replace("\\", "\\\\", SHAREABLE_link($SHAREABLE_script_URI.'img'))))."');\n//-->");
 	}
 }
 if (__FILE__ == $_SERVER['SCRIPT_FILENAME']) die('You are not allowed to call this page directly.<p>You could try starting <a href="http://'.$_SERVER['SERVER_NAME'].'">here</a>.');
@@ -133,7 +182,6 @@ $_SESSION['eli_debug_microtime']['TERRIBL_install_start'] = microtime(true);
 $_SESSION['eli_debug_microtime']['TERRIBL_install_end'] = microtime(true);
 }
 $encode = '/[\?\-a-z\: \.\=\/A-Z\&\_]/';
-$TERRIBL_settings_array = array();
 function TERRIBL_display_header($pTitle) {
 	global $TERRIBL_settings_array, $TERRIBL_plugin_dir, $TERRIBL_plugin_home, $TERRIBL_images_path, $TERRIBL_updated_images_path, $TERRIBL_Version;
 $_SESSION['eli_debug_microtime']['TERRIBL_display_header_start'] = microtime(true);
@@ -275,24 +323,10 @@ function TERRIBL_mysql_report($MySQL, $MyTitle = 'Stats') {
 function SHAREABLE_Settings() {
 	global $TERRIBL_settings_array, $TERRIBL_SQL_SELECT, $TERRIBL_plugin_dir, $TERRIBL_images_path;
 $_SESSION['eli_debug_microtime']['SHAREABLE_Settings_start'] = microtime(true);
-	$current_user = wp_get_current_user();
-	if (isset($_POST['manual_add']) && strlen(trim($_POST['manual_add'])) > 0 && isset($_POST['auto_what']) && strlen($_POST['auto_what']) > 0) {
-		$DomainName = mysql_real_escape_string(trim($_POST['manual_add']));
-		if ($_POST['auto_what']=='add') {
-			@mysql_query("INSERT INTO `wp_terribl_stats` (`StatMonth`, `StatCreated`, `StatModified`, `StatFirstUserAgent`, `StatUserAgent`, `StatFirstRemoteAddr`, `StatRemoteAddr`, `StatReferer`, `StatVisits`, `StatImpressions`, `StatDomain`, `StatReturn`, `StatRequestURI`) VALUES ('".date("Y-m")."-01', '".date("Y-m-d")."', '".date("Y-m-d")."', 'None', 'None', '".$_SERVER['REMOTE_ADDR']."', '".$_SERVER['REMOTE_ADDR']."', 'http://$DomainName', 0, 0, '$DomainName', 1, '/".$TERRIBL_settings_array['auto_root']."') ON DUPLICATE KEY UPDATE `StatReturn`=`StatReturn`+1");
-			@mysql_query("DELETE FROM `wp_terribl_blocked` WHERE BlockDomain='$DomainName'");
-		} elseif ($_POST['auto_what']=='block')
-			@mysql_query("INSERT INTO `wp_terribl_blocked` (BlockDomain, BlockReason, BlockCreated) VALUES ('$DomainName', '".$current_user->display_name." said so once', '".date("Y-m-d H:i:s")."') ON DUPLICATE KEY UPDATE BlockReason=CONCAT(BlockReason,' and again')");
-		elseif ($_POST['auto_what']=='show')
-			@mysql_query("UPDATE `wp_terribl_stats` SET `StatReturn`=`StatReturn`+1 WHERE StatDomain='$DomainName'");
-		elseif ($_POST['auto_what']=='hide')
-			@mysql_query("UPDATE `wp_terribl_stats` SET `StatReturn`=0 WHERE StatDomain='$DomainName'");
-	}
 	TERRIBL_display_header('SHAREABLE Link Settings');
 	echo '<form method="POST" name="TERRIBL_Form"><div class="stuffbox shadowed-box"><h3 class="hndle"><span>Settings Form</span></h3><div class="inside"><table cellpadding=4 style="width: 100%;"><tr><td valign="top" rowspan="2"><b>Optional Div Style</b> (CSS for the Div Tag e.g. background-color: #6CF;):<br /><input type="text" name="div_style" value="'.htmlentities($TERRIBL_settings_array['div_style']).'" style="width: 100%;" /><br /><br /><b>Alternate Image URL</b> (leave blank for an Image of your Domain Name):<br /><input type="text" name="image_url" value="'.htmlentities($TERRIBL_settings_array['image_url']).'" style="width: 100%;" /><br /><br /><b>Optional Image Style</b> (CSS for the Image Tag e.g. float: left;):<br /><input type="text" name="image_style" value="'.htmlentities($TERRIBL_settings_array['image_style']).'" style="width: 100%;" /><br /><br /><b>Optional Link Text</b> (text to be displayed in the link):<br /><input type="text" name="link_text" value="'.htmlentities($TERRIBL_settings_array['link_text']).'" style="width: 100%;" /><br /><br /><b>Optional Link Style</b> (CSS for the Anchor Tag e.g. color: #C30;):<br /><input type="text" name="text_style" value="'.htmlentities($TERRIBL_settings_array['text_style']).'" style="width: 100%;" /></td><td valign="top" align="right" width="200"><b>Example of your link:</b><br /><br /><div style="text-align: left;">'.SHAREABLE_link().'</div></td></tr><tr><td valign="bottom" align="right" width="200"><input type="submit" value="Update Setting" class="button-primary" /></td></tr></table><br /><b>Copy the HTML in this box and give it to others who wish to link to your site</b><br /><textarea style="width: 100%; border: solid #00C 2px;" rows="3">'.htmlentities('<script src="http://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST'].'/?shareable=js"></script>').'</textarea><input type="hidden" id="auto_what" name="auto_what" value="" /><br />&nbsp;</div></div>';
-//	phpinfo();
 	$filter_failed = " AND (`StatReturn`) > 0";
-	$MySQL = str_replace("`StatDomain` AS `Referring<br />Site`", "CONCAT('<img border=0 src=\"".$TERRIBL_images_path."', IF(SUM(`StatReturn`)>0, 'checked.gif\" alt=\"Link Verified\"', 'blocked.gif\" alt=\"Link Not Found'), '\" id=\"img_',StatDomain,'\" name=\"img_Domain\" /><a href=\"javascript:recheckDomain(\'',StatDomain,'\');\">Recheck</a>') AS `Link<br />Verified`, IF(StatDomain IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`), 'Site Blocked!', CONCAT('<input type=\"submit\" value=\"Block Site!\" onclick=\"document.getElementById(\'auto_what\').value=\'block\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\" />')) AS `Widget<br />Action`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatDomain`, '\');\">', `StatDomain`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatDomain`, '\"><table><tr><td>', GROUP_CONCAT(DISTINCT CONCAT(IFNULL(StatReturn, '0'), '</td><td>', StatModified, '</td><td>', StatReferer, '</td><td>', StatRequestURI) ORDER BY StatModified DESC SEPARATOR '</td></tr><tr><td>'), '</td></tr></table></div>') AS `Referring<br />Site`", str_replace(" FROM wp_terribl_stats GROUP BY ", " FROM wp_terribl_stats WHERE (`StatImpressions`) > 0".(isset($_POST['show_failed'])&&($_POST['show_failed']==1)?'':$filter_failed)." GROUP BY ", $TERRIBL_SQL_SELECT));// str_replace("FROM wp_terribl_stats GROUP", "FROM wp_terribl_stats WHERE StatMonth = '".$_POST['MonthOf']."' GROUP",
+	$MySQL = str_replace("`StatDomain` AS `Referring<br />Site`", "CONCAT('<img border=0 src=\"".$TERRIBL_images_path."', IF(SUM(`StatReturn`)>0, 'checked.gif\" alt=\"Link Verified\"', 'blocked.gif\" alt=\"Link Not Found'), '\" id=\"img_',StatDomain,'\" name=\"img_Domain\" /><a href=\"javascript:recheckDomain(\'',StatDomain,'\');\">Recheck</a>') AS `Link<br />Verified`, IF(StatDomain IN (SELECT `BlockDomain` FROM `wp_terribl_blocked`), 'Site Blocked!', CONCAT('<input type=\"submit\" value=\"Block Site!\" onclick=\"document.getElementById(\'auto_what\').value=\'block\';document.getElementById(\'manual_add\').value=\'',StatDomain,'\';\" />')) AS `Widget<br />Action`, CONCAT('<a href=\"javascript:showhideRefDiv(\'', `StatDomain`, '\');\">', `StatDomain`, '</a><div class=\"shadowed-box rounded-corners popup-box\" id=\"RefDiv_', `StatDomain`, '\"><table><tr><td>', GROUP_CONCAT(DISTINCT CONCAT(IFNULL(StatReturn, '0'), '</td><td>', StatModified, '</td><td>', StatReferer, '</td><td>', StatRequestURI) ORDER BY StatModified DESC SEPARATOR '</td></tr><tr><td>'), '</td></tr></table></div>') AS `Referring<br />Site`", str_replace(" FROM wp_terribl_stats GROUP BY ", " FROM wp_terribl_stats WHERE (`StatImpressions`) > 0".(isset($_POST['show_failed'])&&($_POST['show_failed']==1)?'':$filter_failed)." GROUP BY ", $TERRIBL_SQL_SELECT));
 	echo TERRIBL_mysql_report($MySQL, '<center><div style="float: left;"><a href="javascript:recheckAllDomains();"><img border=0 src="'.$TERRIBL_images_path.'checked.gif" alt="Checked" />Recheck All</a></div><b>In-Bound Links Generated by SHAREABLE</b><div style="float: right;"><input type="checkbox" name="show_failed" onchange="document.TERRIBL_Form.submit();" value="1"'.(isset($_POST['show_failed'])&&($_POST['show_failed']==1)?' checked':'').'>Show In-Bound Links that Failed Validation</div></center>').'</form></div></div>';
 $_SESSION['eli_debug_microtime']['SHAREABLE_Settings_end'] = microtime(true);
 }
@@ -365,20 +399,11 @@ $_SESSION['eli_debug_microtime']['TERRIBL_stats_end'] = microtime(true);
 }
 function TERRIBL_menu() {
 	global $TERRIBL_settings_array, $TERRIBL_plugin_dir, $TERRIBL_Version, $wp_version, $TERRIBL_plugin_home, $TERRIBL_Logo_IMG, $TERRIBL_updated_images_path, $TERRIBL_images_path;
+if (is_admin()) {
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
-	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
-	if (!isset($TERRIBL_settings_array['div_style']))
-		$TERRIBL_settings_array['div_style'] = "";
+//	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
 	if (!isset($TERRIBL_settings_array['auto_return']))
 		$TERRIBL_settings_array['auto_return'] = "yes";
-	if (!isset($TERRIBL_settings_array['image_url']))
-		$TERRIBL_settings_array['image_url'] = "";
-	if (!isset($TERRIBL_settings_array['image_style']))
-		$TERRIBL_settings_array['image_style'] = "";
-	if (!isset($TERRIBL_settings_array['link_text']))
-		$TERRIBL_settings_array['link_text'] = "";
-	if (!isset($TERRIBL_settings_array['text_style']))
-		$TERRIBL_settings_array['text_style'] = "";
 	if (!isset($_POST['MonthOf']))
 		$_POST['MonthOf'] = date("Y-m")."-01";
 	if (isset($_POST['auto_return']) && $_POST['auto_return'] != $TERRIBL_settings_array['auto_return'])
@@ -419,6 +444,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_menu_start'] = microtime(true);
 	add_submenu_page($base_page, __('SHAREABLE Settings Page'), __('Link Settings'), 'administrator', 'SHAREABLE-settings', 'SHAREABLE_settings');
 	add_submenu_page($base_page, __('TERRIBL Settings Page'), __('TERRIBL Settings'), 'administrator', $TERRIBL_plugin_dir.'-settings', $TERRIBL_plugin_dir.'_settings');
 	add_submenu_page($base_page, __('TERRIBL Stats Page'), __('TERRIBL Stats'), 'administrator', $TERRIBL_plugin_dir.'-stats', $TERRIBL_plugin_dir.'_stats');
+}
 $_SESSION['eli_debug_microtime']['TERRIBL_menu_end'] = microtime(true);
 }
 function TERRIBL_debug($my_error = '', $echo_error = false) {
@@ -472,12 +498,12 @@ function TERRIBL_get_URL($URL) {
 	return $ReadFile;
 }
 function TERRIBL_init() {
-	global $SHAREABLE_script_URI, $TERRIBL_settings_array, $TERRIBL_plugin_dir, $Visits_Impressions, $TERRIBL_REFERER_Parts, $img_src, $img_t;
+	global $SHAREABLE_script_URI, $TERRIBL_settings_array, $TERRIBL_plugin_dir, $Visits_Impressions, $TERRIBL_REFERER_Parts, $img_src;
 	$YourTZ=get_option('timezone_string').'';
 	if (function_exists('date_default_timezone_set') && strlen($YourTZ) > 0)
 		date_default_timezone_set($YourTZ);
 $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
-	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
+//	$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
 	if (!isset($TERRIBL_settings_array['auto_return'])) 
 		$TERRIBL_settings_array['auto_return'] = "yes";
 	$_SESSION[$TERRIBL_plugin_dir.'MonthOf'] = date("Y-m")."-01";
@@ -500,7 +526,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 					$ReadFile = TERRIBL_get_URL($_rs['StatReferer']);
 					$ReturnOne = '0';
 					if (strlen($ReadFile) > 0) {
-						if (strpos($ReadFile, '://'.$img_t) > 0) {
+						if (strpos($ReadFile, '://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']) > 0) {
 							$ReturnOne = '1';
 							$img_src = 'checked.gif';
 						}
@@ -518,7 +544,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 						else TERRIBL_debug("TERRIBL MySQL UPDATE\n$SQL_Error\nSQL:$MySQL");//only used for debugging.//rem this line out
 					}// elseif ($Visits_Impressions == 'StatReturn') TERRIBL_debug("TERRIBL MySQL UPDATE StatReturn\nSQL:$MySQL");//only used for debugging.
 				}
-//TERRIBL_debug("TERRIBL StatReturn\n$ReturnOne $img_src\n$img_t");//only used for debugging.
+//TERRIBL_debug("TERRIBL StatReturn\n$ReturnOne $img_src\n".$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']);//only used for debugging.
 			} else {
 				if ($Visits_Impressions != 'StatImpressions' && $Visits_Impressions != 'StatReturn')
 					$Visits_Impressions = 'StatVisits';
@@ -528,12 +554,11 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 					$ReadFile = TERRIBL_get_URL($TERRIBL_HTTP_REFERER);
 					if (strlen($ReadFile) > 0) {
 						$ReturnOne = '1';
-						if (strpos($ReadFile, '://'.$img_t) > 0)
+						if (strpos($ReadFile, '://'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_HOST']) > 0)
 							$img_src = 'checked.gif';
 						else
 							$ReturnOne = '0';
 					}
-//TERRIBL_debug("TERRIBL StatReturn\n$ReturnOne $img_src\n$img_t");//only used for debugging.
 				}
 				$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'] = $TERRIBL_HTTP_REFERER;
 				$SAFE_REFERER = "'".mysql_real_escape_string($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'])."'";//)(strpos($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'], '&q=&esrc=s')>0?"REPLACE(`StatReferer`, '/url?', '/search?')":;
@@ -548,7 +573,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_init_start'] = microtime(true);
 					else TERRIBL_debug("TERRIBL MySQL INSERT\n$SQL_Error\nSQL:$MySQL");//only used for debugging.
 				}
 			}
-		} elseif (isset($_GET['Impression_URI']) && ($StatRequestURI == $_GET['Impression_URI']) && ($Visits_Impressions == 'StatImpressions') && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && !isset($_SESSION['chk_'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']])) {
+		} elseif (((isset($_GET['Impression_URI']) && ($StatRequestURI == $_GET['Impression_URI'])) || (isset($_GET['shareable']) && ($StatRequestURI == substr(str_replace('shareable=', '', $SHAREABLE_script_URI), 0, -1)))) && ($Visits_Impressions == 'StatImpressions') && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && !isset($_SESSION['chk_'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']])) {
 			$_SESSION['chk_'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']] = 0;
 		}
 	}
@@ -563,7 +588,7 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_Widget_Class_start'] = mi
 $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_Widget_Class_end'] = microtime(true);
 	}
 	function widget($args, $instance) {
-		global $TERRIBL_SQL_SELECT, $TERRIBL_plugin_dir, $TERRIBL_images_path;
+		global $TERRIBL_SQL_SELECT, $TERRIBL_plugin_dir, $TERRIBL_images_path, $TERRIBL_settings_array;
 $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_widget_start'] = microtime(true);
 		$LIs = '';
 		extract($args);
@@ -574,7 +599,6 @@ $_SESSION['eli_debug_microtime']['TERRIBL_Widget_Class_widget_start'] = microtim
 		if (!is_numeric($instance['number']))
 			$instance['number'] = 5;
 		if (isset($instance['riblfer']) && $instance['riblfer'] == "yes" && isset($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && isset($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && is_array($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) && count($_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts']) > 2) {
-			$TERRIBL_settings_array = get_option($TERRIBL_plugin_dir.'_settings_array');
 			if (isset($TERRIBL_settings_array['auto_return']) && $TERRIBL_settings_array['auto_return'] == "yes" && ($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']) && !isset($_SESSION['chk_'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']]))
 				$img_chk = '<img border=0 id="TERRIBL_IMG_CHK" src="'.$TERRIBL_images_path.'index.php?Return_URL='.urlencode($_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER']).'&Impression_URI='.urlencode(isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:(isset($_SERVER['PHP_SELF'])?$_SERVER['PHP_SELF']:(isset($_SERVER['SCRIPT_NAME'])?$_SERVER['SCRIPT_NAME']:'/'))).'" />';
 			$LIs .= '<li class="TERRIBL-Link">'.$img_chk.'<a target="_blank" title="You got here from '.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" href="'.$_SESSION[$TERRIBL_plugin_dir.'HTTP_REFERER'].'" rel="bookmark">'.$_SESSION[$TERRIBL_plugin_dir.'REFERER_Parts'][2]."</a></li>\n";

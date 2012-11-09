@@ -1,24 +1,24 @@
-=== TERRIBL is now SHAREABLE ===
+=== ELI's SHAREABLE Widget and In-Bound Link Tracking ===
 Plugin URI: http://wordpress.ieonly.com/category/my-plugins/terribl-widget/
 Author: Eli Scheetz
 Author URI: http://wordpress.ieonly.com/category/my-plugins/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
-Tags: widget, plugin, sidebar, track, referer, trade, in-bound, links, list, link trader
-Stable tag: 1.2.11.04
-Version: 1.2.11.04
+Tags: Eli, Shareable, share, referral, sidebar, widget, trading, track, in-bound, links, clicks, impressions, stats, list, referer ,plugin
+Stable tag: 1.2.11.05
+Version: 1.2.11.05
 Requires at least: 2.6
 Tested up to: 3.4.2
 
-SHAREABLE makes it easy to distribute links to your site. Place the new SHAREABLE Widget on your sidebar to display a link to your sites, complete with easy-to-copy link code, that others can put on their own site.
+Just place this new SHAREABLE Widget on your sidebar to display a link to your site, complete with easy-to-copy link code, that visitors can put on their own sites.
 
 == Description ==
 
-This plugin is not TERRIBL any more, it's SHAREABLE! It still Tracks Every Referer and Returns In-Bound Links but now it also makes it easy to distribute links to your site. Place the new SHAREABLE Widget on your sidebar to display a link to your sites, complete with easy-to-copy link code, that others can put on their own site. You can even customize the link to looks the way you want it to.
+SHAREABLE makes it easy to distribute links to your site. Just place the Widget on your sidebar to display a link to your site, complete with easy-to-copy link code, that visitors can put on their own site. You can even customize the style of the link and use external images.
 
-It also helps you track the effectiveness of your in-bound links with impression counts on a special linked image that you share with others. After installation this plugin will start collecting in-bound link statistics immediately.
+After installation this plugin will start collecting in-bound clicks and impression statistics immediately.
 
-Updated Nov-4th
+Updated Nov-7th
 
 == Installation ==
 
@@ -46,15 +46,22 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 
 == Screenshots ==
 
-1. This is a screen shot of the Widget settings with all it's options showing.
+1. The SHAREABLE Link Widget with a simple example link for [wordpress.ieonly.com](http://wordpress.ieonly.com/).
 
-2. This is a screen shot of the Widget with some example links.
+2. The same Widget, when you hover over the link, the easy-to-copy code is displayed.
 
-3. This is a screen shot of the Settings page with some example In-Bound Links.
+3. The In-Bound Links Widget with examples of returned links and a fancy example of a SHAREABLE link to [GOTMLS.NET](http://gotmls.net/).
 
-4. This is a screen shot of the Stats page with some example stats.
+4. The SHAREABLE Link Settings page with all settings for [GOTMLS.NET](http://gotmls.net/) link.
+
+5. The In-Bound Links Widget settings on the Widget Admin page with the options showing.
+
+6. The TERRIBL Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.11.05 =
+* Improved load time and impression counting techniques.
 
 = 1.2.11.04 =
 * Added a whole new Widget that makes link sharing easy and customizable.
@@ -139,6 +146,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.11.05 =
+Improved load time and impression counting techniques.
 
 = 1.2.11.04 =
 Added a whole new Widget that makes link sharing easy and customizable.
