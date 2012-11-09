@@ -10,13 +10,13 @@ Version: 1.2.11.05
 Requires at least: 2.6
 Tested up to: 3.4.2
 
-Just place this new SHAREABLE Widget on your sidebar to display a link to your site, complete with easy-to-copy link code, that visitors can put on their own sites.
+Place the SHAREABLE Widget on your sidebar to display a link to your site, that visitors can copy to their own site (features easy-to-copy link code).
 
 == Description ==
 
-SHAREABLE makes it easy to distribute links to your site. Just place the Widget on your sidebar to display a link to your site, complete with easy-to-copy link code, that visitors can put on their own site. You can even customize the style of the link and use external images.
+SHAREABLE makes it easy to distribute links to your site. Just place the Widget on your sidebar to display a link to your site, that visitors can copy to their own site (features easy-to-copy link code). You can even customize the style of the link and use external images.
 
-After installation this plugin will start collecting in-bound clicks and impression statistics immediately.
+After installation this Plugin will start collecting in-bound clicks and impression statistics immediately.
 
 Updated Nov-7th
 
