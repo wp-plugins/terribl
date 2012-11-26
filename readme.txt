@@ -5,8 +5,8 @@ Author URI: http://wordpress.ieonly.com/category/my-plugins/
 Contributors: scheeeli
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VWNB5QEJ55TJ
 Tags: Eli, Shareable, share, referral, sidebar, widget, trading, track, in-bound, links, clicks, impressions, stats, list, referer ,plugin
-Stable tag: 1.2.11.05
-Version: 1.2.11.05
+Stable tag: 1.2.11.20
+Version: 1.2.11.20
 Requires at least: 2.6
 Tested up to: 3.4.2
 
@@ -59,6 +59,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 6. The TERRIBL Stats page with some example stats.
 
 == Changelog ==
+
+= 1.2.11.20 =
+* Fixed conflicts with the image uploader and opther plugins by not setting POST variables.
 
 = 1.2.11.05 =
 * Improved load time and impression counting techniques.
@@ -146,6 +149,9 @@ In October of 2011 Google announced that signed-in users will, by default, be ro
 * First versions uploaded to WordPress.
 
 == Upgrade Notice ==
+
+= 1.2.11.20 =
+Fixed conflicts with the image uploader and opther plugins by not setting POST variables.
 
 = 1.2.11.05 =
 Improved load time and impression counting techniques.
